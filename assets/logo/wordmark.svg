@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 32" role="img" aria-label="Josep Rodon">
+  
+  <g fill="currentColor">
+    
+    <path d="M0 26 L11 6 L22 26 Z"></path>
+    <path d="M16 26 L27 6 L38 26 Z"></path>
+    <path d="M32 26 L43 6 L54 26 Z"></path>
+    
+    <path d="M64 28 L72 4 L74 4 L66 28 Z"></path>
+    
+    <text x="82" y="23" font-family="GT Sectra Display, EB Garamond, Times New Roman, serif" font-size="20" font-weight="400" letter-spacing="-0.01em">Josep Rodon</text>
+  </g>
+</svg>

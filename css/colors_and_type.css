@@ -1,0 +1,397 @@
+@font-face {
+  font-family: "Cormorant Garamond";
+  src: url("../fonts/CormorantGaramond.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+}
+
+/* =========================================================
+   JOSEP RODON — DESIGN SYSTEM
+   colors_and_type.css
+
+   A minimal, editorial, architectural design system for a
+   spatial / interiors / art-direction portfolio.
+
+   Three visual directions share these foundations:
+     1. Editorial Minimal      (warm paper, serif display)
+     2. Sober Architectural    (cool plaster, mono + grotesk)
+     3. Experimental Elegant   (cream + a single sharp accent)
+
+   Switch direction by setting `data-direction` on <html>:
+     <html data-direction="editorial">   (default)
+     <html data-direction="architectural">
+     <html data-direction="experimental">
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* DM Sans — brand body / UI font, supplied by Josep (variable, opsz + wght) */
+@font-face {
+  font-family: "DM Sans";
+  src: url("../fonts/DMSans-VariableFont_opsz_wght.ttf") format("truetype-variations"),
+       url("../fonts/DMSans-VariableFont_opsz_wght.ttf") format("truetype");
+  font-weight: 100 1000;
+  font-stretch: 75% 125%;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "DM Sans";
+  src: url("../fonts/DMSans-Italic-VariableFont_opsz_wght.ttf") format("truetype-variations"),
+       url("../fonts/DMSans-Italic-VariableFont_opsz_wght.ttf") format("truetype");
+  font-weight: 100 1000;
+  font-stretch: 75% 125%;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* ---------------------------------------------------------
+   1. RAW PALETTE — neutral, warm, sober
+   --------------------------------------------------------- */
+:root {
+  /* Papers — backgrounds */
+  --paper-warm:   #F4EFE6;   /* warm cream — Editorial */
+  --paper-bone:   #EFEAE0;   /* slightly deeper bone */
+  --paper-cool:   #ECEAE5;   /* cool plaster — Architectural */
+  --paper-snow:   #F7F6F2;   /* near-white, off-cool */
+  --paper-pure:   #FFFFFF;   /* full white, used sparingly */
+
+  /* Inks — text + lines */
+  --ink-900:      #111111;   /* near-black, never pure */
+  --ink-800:      #1C1C1A;
+  --ink-700:      #2A2A28;
+  --ink-500:      #555551;
+  --ink-400:      #7A7975;
+  --ink-300:      #A8A6A0;
+  --ink-200:      #D2CFC8;   /* hairline / divider */
+  --ink-100:      #E6E3DC;   /* faint divider */
+
+  /* Stone / earth — image-pulled neutrals */
+  --stone-clay:   #B7A893;
+  --stone-sand:   #D9CDB8;
+  --stone-graphite: #3A3A38;
+  --stone-iron:   #5C5C5A;
+
+  /* Single accents (used sparingly, ONE per direction) */
+  --accent-yellow: #F2E84A;  /* reference site's signal yellow */
+  --accent-clay:   #C9683C;  /* burnt clay — kept for reference, no longer used */
+  --accent-red:    #C8332A;  /* architectural drawing redline / annotation red */
+  --accent-ink:    #111111;  /* "color" can simply be black */
+
+  /* ----- Semantic mapping (Editorial Minimal — DEFAULT) ---- */
+  --bg:           var(--paper-warm);
+  --bg-elev:      var(--paper-snow);
+  --fg:           var(--ink-900);
+  --fg-muted:     var(--ink-500);
+  --fg-faint:     var(--ink-400);
+  --rule:         var(--ink-200);
+  --rule-strong:  var(--ink-700);
+  --accent:       var(--accent-ink);
+  --selection-bg: var(--accent-yellow);
+  --selection-fg: var(--ink-900);
+}
+
+/* ---------------------------------------------------------
+   2. DIRECTION OVERRIDES
+   --------------------------------------------------------- */
+:root[data-direction="architectural"] {
+  --bg:           var(--paper-cool);
+  --bg-elev:      var(--paper-pure);
+  --fg:           var(--ink-800);
+  --fg-muted:     var(--ink-500);
+  --rule:         var(--ink-200);
+  --rule-strong:  var(--ink-800);
+  --accent:       var(--accent-red);
+  --selection-bg: var(--accent-red);
+  --selection-fg: var(--paper-pure);
+}
+
+:root[data-direction="experimental"] {
+  --bg:           var(--paper-bone);
+  --bg-elev:      var(--paper-warm);
+  --fg:           var(--ink-900);
+  --fg-muted:     var(--ink-500);
+  --rule:         var(--ink-200);
+  --rule-strong:  var(--ink-900);
+  --accent:       var(--accent-yellow);
+}
+
+/* ---------------------------------------------------------
+   3. TYPE — three families, very controlled scale
+   --------------------------------------------------------- */
+:root {
+  /* Display serif — editorial, sharp, with character.
+     Primary: GT Sectra Display (commercial). Substitute on Google
+     Fonts: "EB Garamond" set tight for display use. Flagged in README. */
+  --font-display: "GT Sectra Display", "EB Garamond", "Times New Roman", Georgia, serif;
+
+  /* Text grotesque — DM Sans (brand). Variable, opsz + wght axes.
+     Previous fallback: Inter Tight. Now native. */
+  --font-sans:    "DM Sans", "Inter Tight", "Helvetica Neue", Arial, sans-serif;
+
+  /* Mono — only for timestamps, captions, technical sheet labels */
+  --font-mono:    "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Type scale — modular, conservative.
+     Most of the site lives between 13px and 22px.
+     Display only appears on hero / cover moments. */
+  --t-xs:    11px;   /* meta, timestamp, eyebrow */
+  --t-sm:    13px;   /* captions, technical labels */
+  --t-base:  15px;   /* body */
+  --t-md:    18px;   /* lead paragraph */
+  --t-lg:    22px;   /* H4 */
+  --t-xl:    32px;   /* H3 */
+  --t-2xl:   48px;   /* H2 */
+  --t-3xl:   72px;   /* H1 */
+  --t-4xl:   120px;  /* Display */
+  --t-5xl:   200px;  /* Hero number / poster */
+
+  /* Tracking */
+  --track-tight:   -0.02em;
+  --track-snug:    -0.01em;
+  --track-normal:   0;
+  --track-wide:     0.04em;
+  --track-eyebrow:  0.12em;   /* uppercase eyebrows / nav labels */
+
+  /* Leading */
+  --lh-tight:   1.02;
+  --lh-snug:    1.15;
+  --lh-normal:  1.45;
+  --lh-loose:   1.6;
+}
+
+/* ---------------------------------------------------------
+   4. SEMANTIC TYPOGRAPHY
+   --------------------------------------------------------- */
+.display, .h-display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--t-4xl);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--track-tight);
+  color: var(--fg);
+}
+
+h1, .h1 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--t-3xl);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--track-tight);
+  color: var(--fg);
+  margin: 0;
+}
+
+h2, .h2 {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: var(--t-2xl);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--track-snug);
+  margin: 0;
+}
+
+h3, .h3 {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: var(--t-xl);
+  line-height: var(--lh-snug);
+  letter-spacing: var(--track-snug);
+  margin: 0;
+}
+
+h4, .h4 {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: var(--t-lg);
+  line-height: var(--lh-snug);
+  margin: 0;
+}
+
+.lead {
+  font-family: var(--font-sans);
+  font-weight: 300;
+  font-size: var(--t-md);
+  line-height: var(--lh-normal);
+  color: var(--fg);
+}
+
+p, .p {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: var(--t-base);
+  line-height: var(--lh-normal);
+  color: var(--fg);
+}
+
+.caption {
+  font-family: var(--font-sans);
+  font-weight: 400;
+  font-size: var(--t-sm);
+  line-height: var(--lh-normal);
+  color: var(--fg-muted);
+}
+
+.eyebrow {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: var(--t-xs);
+  line-height: 1;
+  letter-spacing: var(--track-eyebrow);
+  text-transform: uppercase;
+  color: var(--fg);
+}
+
+.meta, .mono {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: var(--t-xs);
+  line-height: 1;
+  letter-spacing: 0;
+  color: var(--fg-muted);
+  font-feature-settings: "tnum" 1;
+}
+
+/* Editorial italic — used for project titles in the technical sheet */
+.serif-italic {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* ---------------------------------------------------------
+   5. BASE
+   --------------------------------------------------------- */
+* { box-sizing: border-box; }
+
+html, body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+  font-size: var(--t-base);
+  line-height: var(--lh-normal);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+}
+
+::selection { background: var(--selection-bg); color: var(--selection-fg); }
+
+a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 1px;
+  transition: opacity 160ms ease;
+}
+a:hover { opacity: 0.55; }
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: 0;
+}
+
+img { display: block; max-width: 100%; height: auto; }
+
+/* ---------------------------------------------------------
+   6. SPACING + GRID
+   --------------------------------------------------------- */
+:root {
+  --s-1:  4px;
+  --s-2:  8px;
+  --s-3:  12px;
+  --s-4:  16px;
+  --s-5:  24px;
+  --s-6:  32px;
+  --s-7:  48px;
+  --s-8:  64px;
+  --s-9:  96px;
+  --s-10: 128px;
+  --s-11: 192px;
+
+  /* Page gutters */
+  --gutter:        24px;
+  --gutter-wide:   40px;
+  --col-gap:       24px;
+
+  /* Architectural 12-col grid */
+  --grid-cols: 12;
+}
+
+.grid-12 {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: var(--col-gap);
+}
+
+/* ---------------------------------------------------------
+   7. RULES + LINES (architectural plan-drawing aesthetic)
+   --------------------------------------------------------- */
+.rule        { border-top: 1px solid var(--rule); }
+.rule-bottom { border-bottom: 1px solid var(--rule); }
+.rule-strong { border-top: 1px solid var(--rule-strong); }
+
+/* Hairline used inside technical sheets — lighter still */
+.hairline    { border-top: 1px solid var(--ink-100); }
+
+/* Plan-drawing dotted vertical column rule (used in architectural) */
+.plan-rule {
+  background-image: linear-gradient(to bottom, var(--rule) 50%, transparent 50%);
+  background-size: 1px 6px;
+  background-repeat: repeat-y;
+  width: 1px;
+}
+
+/* ---------------------------------------------------------
+   8. ELEVATION — almost none. Print-like.
+   --------------------------------------------------------- */
+:root {
+  --shadow-none:    none;
+  --shadow-paper:   0 1px 0 rgba(0,0,0,0.04);
+  --shadow-lift:    0 12px 40px -16px rgba(20,18,14,0.18);
+  --radius-none:    0;
+  --radius-xs:      2px;     /* used only on micro-pills, captions */
+  --radius-sm:      4px;
+}
+
+/* The system is mostly square. Use radius only when explicitly needed. */
+
+/* ---------------------------------------------------------
+   9. MOTION
+   --------------------------------------------------------- */
+:root {
+  --ease:           cubic-bezier(0.2, 0.6, 0.2, 1);
+  --ease-out-soft:  cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-fast:       160ms;
+  --dur-base:       260ms;
+  --dur-slow:       520ms;
+}
+
+/* Default interactions: fade + 1-2px shifts. No bounces. */
+.fade-in { animation: jr-fade var(--dur-slow) var(--ease-out-soft) both; }
+@keyframes jr-fade {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------------------------------------------------------
+  10. UTILITIES
+   --------------------------------------------------------- */
+.muted        { color: var(--fg-muted); }
+.faint        { color: var(--fg-faint); }
+.uppercase    { text-transform: uppercase; letter-spacing: var(--track-eyebrow); }
+.tabular      { font-variant-numeric: tabular-nums; }
+.center       { text-align: center; }
+.right        { text-align: right; }
+.full-bleed   { width: 100vw; margin-left: calc(50% - 50vw); }
+.inline-rule::before {
+  content: "";
+  display: inline-block;
+  width: 24px;
+  height: 1px;
+  background: currentColor;
+  vertical-align: middle;
+  margin-right: 8px;
+}
