@@ -1,16 +1,34 @@
+# Notes personals i referències (no van al repo públic)
+to do list.txt
+scraps/
+uploads/
+
+# Versions antigues no utilitzades per index.html
+components-strip-v1.jsx
+css/app-strip-v1.css
+
+# Fitxers del sistema operatiu
 .DS_Store
 Thumbs.db
 desktop.ini
-*~
+
+# Editors
 .vscode/
 .idea/
 *.swp
-*.swo
+
+# Dependències i builds
 node_modules/
 npm-debug.log
 yarn-error.log
 dist/
 build/
 .cache/
+
+# Variables d'entorn
 .env
 .env.local
+
+# Originals pesants i exports temporals (no van al repo)
+*.psd
+Sin título*

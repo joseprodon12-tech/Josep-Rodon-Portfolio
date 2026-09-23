@@ -16,7 +16,7 @@
 <script type="text/babel" src="components.jsx"></script>
 <script type="text/babel" src="tweaks-panel.jsx"></script>
 <script type="text/babel">
-const { useState, useEffect } = React;
+const { useState, useEffect, useRef } = React;
 
 const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
   "direction": "editorial",
@@ -65,8 +65,32 @@ function App() {
     return () => window.removeEventListener("resize", handler);
   }, []);
 
-  const onOpen = (id) => { setOpenId(id); setPage("project"); window.scrollTo({ top: 0 }); };
-  const onNav = (p) => { setPage(p); setOpenId(null); window.scrollTo({ top: 0 }); };
+  // El home fusiona hero + projectes: "menu" hi porta fent scroll, no canviant de pàgina
+  const homeHasStrip = !isMobile && tweaks.homeStyle === "carousel" && tweaks.menuLayout === "strip";
+
+  // En obrir un projecte es recorda on eres, per tornar-hi exactament
+  const tornadaRef = useRef(0);
+  const onOpen = (id) => {
+    if (page === "home" || page === "menu") tornadaRef.current = window.scrollY;
+    setOpenId(id); setPage("project"); window.scrollTo({ top: 0 });
+  };
+  const onBack = () => {
+    setOpenId(null);
+    setPage("home");
+    const y = tornadaRef.current;
+    // dos fotogrames: el primer dibuixa el home, el segon ja té l'alçada bona
+    requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo(0, y)));
+  };
+  const onNav = (p) => {
+    if (p === "menu" && homeHasStrip) {
+      const toStrip = () => window.scrollTo({ top: window.innerHeight * HOME_ENTER_VH, behavior: "smooth" });
+      setOpenId(null);
+      if (page === "home") { toStrip(); }
+      else { setPage("home"); window.scrollTo({ top: 0 }); requestAnimationFrame(() => requestAnimationFrame(toStrip)); }
+      return;
+    }
+    setPage(p); setOpenId(null); window.scrollTo({ top: 0 });
+  };
   const project = window.PROJECTS.find(p => p.id === openId);
 
   return (
@@ -81,7 +105,11 @@ function App() {
 
       {page === "home" && !isMobile && (
         tweaks.homeStyle === "carousel"
-          ? <main className="page" key="home-carousel"><HeroCarousel projects={window.PROJECTS} onOpen={onOpen} lang={lang} onNav={onNav} /></main>
+          ? <main className="page" key="home-carousel">
+              {tweaks.menuLayout === "strip"
+                ? <HomeStage projects={window.PROJECTS} onOpen={onOpen} lang={lang} onNav={onNav} />
+                : <HeroCarousel projects={window.PROJECTS} onOpen={onOpen} lang={lang} onNav={onNav} />}
+            </main>
           : <main className="page" key="home-sparse"><HomeSparse onNav={onNav} lang={lang} /></main>
       )}
 
@@ -103,7 +131,7 @@ function App() {
 
       {page === "project" && project && (
         <main className="page" key={"proj" + openId}>
-          <ProjectDetail project={project} onOpen={onOpen} onBack={() => onNav("menu")} lang={lang} />
+          <ProjectDetail project={project} onOpen={onOpen} onBack={onBack} lang={lang} />
         </main>
       )}
 

@@ -2,7 +2,7 @@
 window.PROJECTS = [
   {
     id: "cafe-vellut",
-    num: "0.1",
+    num: "01",
     title: "Cafè Vellut",
     category: { ca: "Maqueta / Espai", en: "Model / Space" },
     location: { ca: "Barcelona", en: "Barcelona" },
@@ -33,7 +33,7 @@ window.PROJECTS = [
   },
   {
     id: "alter-bn",
-    num: "0.2",
+    num: "02",
     title: "Alter BN",
     category: { ca: "Disseny d'interiors / retail", en: "Interior design / retail" },
     location: { ca: "Barcelona", en: "Barcelona" },
@@ -62,7 +62,7 @@ window.PROJECTS = [
   },
   {
     id: "cine-infantil",
-    num: "0.3",
+    num: "03",
     title: "CineClub Infantil",
     category: { ca: "Disseny d'edificis / entorn", en: "Floor Building Design / environment" },
     location: { ca: "Barcelona, Poblenou", en: "Barcelona, Poblenou" },
@@ -92,7 +92,7 @@ window.PROJECTS = [
   },
   {
     id: "i-am",
-    num: "0.4",
+    num: "04",
     title: "I AM",
     category: { ca: "Disseny d'espais / exposició", en: "Space design / exhibition" },
     location: { ca: "Barcelona", en: "Barcelona" },
@@ -124,7 +124,7 @@ window.PROJECTS = [
   },
   {
     id: "can-mor",
-    num: "0.5",
+    num: "05",
     title: "Can Mor CASA",
     category: { ca: "Documentació / Habitatge", en: "Documentation / Housing" },
     location: { ca: "Barcelona", en: "Barcelona" },
@@ -155,7 +155,7 @@ window.PROJECTS = [
   },
   {
     id: "molta-fusta",
-    num: "0.6",
+    num: "06",
     title: "Molta Fusta",
     category: { ca: "Fabricació digital / Objecte artístic", en: "Digital fabrication / Art object" },
     location: { ca: "Barcelona, BAU", en: "Barcelona, BAU" },
@@ -187,7 +187,7 @@ window.PROJECTS = [
   },
   {
     id: "rrr",
-    num: "0.7",
+    num: "07",
     title: "RRR",
     category: { ca: "Recerca de materials / Disseny de producte", en: "Material research / Product design" },
     location: { ca: "Barcelona, BAU", en: "Barcelona, BAU" },
@@ -220,7 +220,7 @@ window.PROJECTS = [
   },
   {
     id: "entre-pinos",
-    num: "0.8",
+    num: "08",
     title: "Entre Pinos",
     category: { ca: "Anàlisi i redisseny / Paisatgisme", en: "Analysis and redesign / Landscape" },
     location: { ca: "Valle de Bravo, Mèxic", en: "Valle de Bravo, Mexico" },
@@ -251,7 +251,7 @@ window.PROJECTS = [
   },
   {
     id: "casa-keremma",
-    num: "0.9",
+    num: "09",
     title: "Casa R en Keremma",
     category: { ca: "Anàlisi i representació", en: "Analysis and representation" },
     location: { ca: "Keremma, França", en: "Keremma, France" },
@@ -280,7 +280,7 @@ window.PROJECTS = [
   },
   {
     id: "edificis-poble9",
-    num: "0.10",
+    num: "10",
     title: "Edificis Poble9",
     category: { ca: "Fotografia d'arquitectura", en: "Architectural photography" },
     location: { ca: "Poblenou, Barcelona", en: "Poblenou, Barcelona" },

@@ -1,6 +1,49 @@
 /* AYMA / Josep Rodon — portfolio components */
 const { useState, useEffect, useMemo, useRef, useCallback } = React;
 
+/* Quantes pantalles de scroll costa fer entrar el strip de projectes al home.
+   Si es canvia, cal canviar també l'alçada de .home-stage a app.css
+   (ha de ser 100vh de hero + HOME_ENTER_VH × 100vh de recorregut). */
+const HOME_ENTER_VH = 1.6;
+
+/* Suavitat de l'entrada: com més petit, més lliscada i més endarrerida
+   respecte de la roda del ratolí (0.10 ≈ el mateix tacte que el scroll
+   horitzontal del strip). */
+const HOME_ENTER_EASE = 0.09;
+
+/* Imatge fixa del home (fons sobre el qual entren els projectes).
+   Ordinador: la composició apaïsada, a sang.
+   Mòbil: la mateixa fotografia retallada en vertical; el text el remunta
+   el CSS a sobre (.mobile-hero-type), així encaixa a qualsevol pantalla. */
+const HOME_STILL_SRC = "assets/home-desktop.jpg";
+const HOME_STILL_MOBILE_SRC = "assets/home-mobile.jpg";
+
+/* Durada de l'obertura del menú quan es clica la fletxa "Click Here!" */
+const HOME_REVEAL_MS = 1000;
+
+/* Mòbil: franja inferior on fan cua els projectes que vénen (fracció de
+   pantalla) i quantes tires s'hi veuen alhora. */
+const MOBILE_BAND = 0.16;
+const MOBILE_QUEUE = 4;
+
+/* Quina part del recorregut de cada projecte és pujada i quina és aturada
+   a la línia del header (0.5 = mitja pantalla pujant, mitja aturat). */
+const MOBILE_RISE = 0.5;
+
+/* On seu el títol dins de la targeta (fracció d'alçada). Prou avall perquè
+   no entri mai al header i perquè, en desplegar-se, aparegui al centre de
+   la imatge, que és on estàs mirant. El CSS ho llegeix de --title-top. */
+const MOBILE_TITLE_TOP = 0.38;
+
+/* Pantalla d'inici del mòbil: quina part ocupa l'avançament de projectes
+   i quants se'n veuen apilats. */
+const MOBILE_HOME_STACK = 0.40;
+const MOBILE_HOME_QUEUE = 4;
+
+/* Prova: als N primers projectes les lletres inverteixen el color del fons
+   en comptes de ser blanques. Posa-ho a 0 per treure-ho o a 99 per a tots. */
+const MOBILE_INVERT_FIRST = 5;
+
 /* ============== AVA Mark ============== */
 function AvaMark({ fill = "currentColor", accent }) {
   return (
@@ -45,7 +88,6 @@ function Nav({ page, onNav, lang, accentYellow, onMenu }) {
         <div className="nav-right">
           <nav className="nav-links">
             <button className={`nav-link ${page === "home" ? "is-active" : ""}`} onClick={() => onNav("home")}>{s.nav.home}</button>
-            <button className={`nav-link ${page === "menu" ? "is-active" : ""}`} onClick={() => onNav("menu")}>{s.nav.projects}</button>
             <button className={`nav-link ${page === "about" ? "is-active" : ""}`} onClick={() => onNav("about")}>{s.nav.about}</button>
           </nav>
           <button className="nav-link" onClick={onMenu} style={{ paddingLeft: 10, borderLeft: "1px solid currentColor", opacity: 1 }}>Menu</button>
@@ -56,7 +98,7 @@ function Nav({ page, onNav, lang, accentYellow, onMenu }) {
 }
 
 /* ============== Homepage — hero carousel ============== */
-function HeroCarousel({ projects, onOpen, lang, onNav }) {
+function HeroCarousel({ projects, onOpen, lang, onNav, paused = false }) {
   const [idx, setIdx] = useState(0);
   const [leaving, setLeaving] = useState(-1);
   const s = window.STRINGS[lang];
@@ -68,11 +110,13 @@ function HeroCarousel({ projects, onOpen, lang, onNav }) {
   }, [idx, projects.length]);
 
   useEffect(() => {
+    if (paused) return;
     const id = setInterval(() => go(1), 2000);
     return () => clearInterval(id);
-  }, [go]);
+  }, [go, paused]);
 
   useEffect(() => {
+    if (paused) return;
     const onKey = (e) => {
       if (e.key === "ArrowLeft") go(-1);
       if (e.key === "ArrowRight") go(1);
@@ -80,7 +124,7 @@ function HeroCarousel({ projects, onOpen, lang, onNav }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [go, onOpen, p.id]);
+  }, [go, onOpen, p.id, paused]);
 
   return (
     <>
@@ -122,30 +166,119 @@ function HeroCarousel({ projects, onOpen, lang, onNav }) {
           </div>
         </div>
       </section>
-      <div className="home-strip" data-over="light">
-        <div>
-          <h2 style={{ display: "flex", alignItems: "center", gap: "7px" }}>
-            {lang === "ca" ? "AYMA Studio" : "AYMA Studio"}
-            <img src="assets/logo.png" alt="" style={{ height: "12px", width: "auto", objectFit: "contain" }} />
-          </h2>
-          <p>{lang === "ca" ? "Espai de recerca i projectes de disseny espacial, arquitectura i direcció artística." : "A space for research and projects in spatial design, architecture and art direction."}</p>
+    </>);
+
+}
+
+/* ============== Homepage — imatge fixa de fons ============== */
+function HeroStill({ onReveal, lang }) {
+  return (
+    <section className="home-hero home-hero-still" data-over="dark">
+      <img className="home-hero-img is-active" src={HOME_STILL_SRC} alt="Josep Rodon" />
+      {onReveal &&
+      <button
+        className="home-still-open"
+        onClick={onReveal}
+        aria-label={lang === "en" ? "See projects" : "Veure projectes"} />
+      }
+    </section>);
+
+}
+
+/* ============== Homepage — hero + strip de projectes en un sol scroll ==============
+   El hero ocupa tota la pantalla. En fer scroll, el strip de projectes entra des de
+   la dreta fins a omplir-la; llavors apareix l'índex fixat a l'esquerra i el scroll
+   passa a ser horitzontal. Pujant, tot torna enrere i es recupera el hero.        */
+function HomeStage({ projects, onOpen, lang, onNav }) {
+  const [enter, setEnter] = useState(0); // 0 = només hero · 1 = strip del tot dins
+  const targetRef = useRef(0);   // on vol arribar el scroll
+  const currentRef = useRef(0);  // on és ara el strip
+  const rafRef = useRef(null);
+  const revealingRef = useRef(false); // animació del "Click Here!" en marxa
+
+  // El scroll marca un objectiu; el strip hi va lliscant, no hi salta.
+  useEffect(() => {
+    const readTarget = () => {
+      const runway = window.innerHeight * HOME_ENTER_VH;
+      // Si ja som al final de la pàgina, el strip és dins encara que
+      // l'arrodoniment del navegador deixi el càlcul una mica curt.
+      const atBottom =
+        window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2;
+      targetRef.current =
+        runway <= 0 || atBottom ? 1 : Math.min(1, Math.max(0, window.scrollY / runway));
+    };
+
+    const step = () => {
+      if (revealingRef.current) { rafRef.current = null; return; }
+      const diff = targetRef.current - currentRef.current;
+      if (Math.abs(diff) < 0.0008) {
+        currentRef.current = targetRef.current;
+        setEnter(currentRef.current);
+        rafRef.current = null;
+        return;
+      }
+      currentRef.current += diff * HOME_ENTER_EASE;
+      setEnter(currentRef.current);
+      rafRef.current = requestAnimationFrame(step);
+    };
+
+    const onScroll = () => {
+      readTarget();
+      if (!revealingRef.current && rafRef.current === null) rafRef.current = requestAnimationFrame(step);
+    };
+
+    readTarget();
+    currentRef.current = targetRef.current;
+    setEnter(currentRef.current);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
+
+  /* "Click Here!": obre el menú sencer amb la mateixa entrada lateral,
+     en 1 segon exacte, i deixa el scroll al lloc que li tocaria. */
+  const reveal = useCallback(() => {
+    if (revealingRef.current || currentRef.current > 0.98) return;
+    revealingRef.current = true;
+    if (rafRef.current) { cancelAnimationFrame(rafRef.current); rafRef.current = null; }
+    const from = currentRef.current;
+    const t0 = performance.now();
+    const tick = (t) => {
+      const k = Math.min(1, (t - t0) / HOME_REVEAL_MS);
+      const eased = 1 - Math.pow(1 - k, 3); // frena al final
+      currentRef.current = from + (1 - from) * eased;
+      setEnter(currentRef.current);
+      if (k < 1) { requestAnimationFrame(tick); return; }
+      // Sincronitzem el scroll amb l'estat final, sense tornar a animar
+      currentRef.current = 1;
+      targetRef.current = 1;
+      revealingRef.current = false;
+      window.scrollTo(0, window.innerHeight * HOME_ENTER_VH);
+    };
+    requestAnimationFrame(tick);
+  }, []);
+
+  const locked = enter > 0.98;
+
+  return (
+    <div className="home-stage">
+      <div className="home-stage-sticky">
+        <div
+          className="home-stage-hero"
+          style={{ pointerEvents: enter > 0.15 ? "none" : "auto" }}>
+          <HeroStill onReveal={reveal} lang={lang} />
         </div>
-        <div>
-          <h2>{lang === "ca" ? "Josep Rodon" : "Josep Rodon"}</h2>
-          <p>{lang === "ca" ? "Estudiant a BAU, Barcelona. Disseny d'espais i materialitat sostenible." : "Student at BAU, Barcelona. Spatial design and sustainable materiality."}{" "}<button className="contactem-btn" onClick={() => onNav("about")}>{lang === "ca" ? "Contactem" : "Contact"}</button></p>
-        </div>
-        <div className="home-strip-btn-cell">
-          <button className="home-strip-projects-btn" onClick={() => onNav("menu")}>
-            {lang === "ca" ? "PROJECTES" : "PROJECTS"}
-          </button>
-        </div>
-        <div className="col-meta">
-          <div>BCN · ES</div>
-          <div style={{ marginTop: 4 }}>41.3851° N</div>
-          <div>2.1734° E</div>
+        <div
+          className="home-stage-strip"
+          style={{ transform: `translate3d(${(1 - enter) * 100}%,0,0)` }}>
+          <StripMenu onOpen={onOpen} lang={lang} onNav={onNav} embedded locked={locked} />
         </div>
       </div>
-    </>);
+    </div>);
 
 }
 
@@ -243,6 +376,8 @@ function ProjectDetail({ project, onOpen, onBack, lang }) {
         <span className="institution">{project.institution[lang]}</span>
         <span className="date tabular">{project.date}</span>
       </div>
+
+      <button className="proj-back-mobile" onClick={onBack}>← {s.back}</button>
 
       <div className="proj-hero" data-over="dark">
         <img src={project.cover} alt={project.title} />
@@ -454,11 +589,16 @@ function ColumnsMenu({ tiles, onOpen }) {
 const STRIP_FILTERS = [
   { key: "all",        ca: "Tots",         en: "All" },
   { key: "espais",     ca: "Espais",       en: "Spaces" },
+  { key: "renders",    ca: "Renders 3D",   en: "3D Renders" },
   { key: "instalacio", ca: "Instal·lació", en: "Installation" },
   { key: "recerca",    ca: "Recerca",      en: "Research" },
 ];
 
-function StripMenu({ onOpen, lang, onNav }) {
+/* Posició horitzontal del strip: es recorda entre visites, perquè en
+   tornar d'un projecte no comenci de zero. */
+let STRIP_SCROLL_X = 0;
+
+function StripMenu({ onOpen, lang, onNav, embedded = false, locked = true }) {
   const wrapRef = useRef(null);
   const [activeFilter, setActiveFilter] = useState("all");
   const [focusedId, setFocusedId] = useState(null);
@@ -476,15 +616,32 @@ function StripMenu({ onOpen, lang, onNav }) {
     if (!el) return;
     let targetX = el.scrollLeft;
     let rafId = null;
+    // La posició es recupera un fotograma després: en muntar-se, la fila
+    // encara no té amplada i el navegador la retallaria a zero.
+    if (STRIP_SCROLL_X > 0) {
+      requestAnimationFrame(() => {
+        el.scrollLeft = STRIP_SCROLL_X;
+        targetX = el.scrollLeft;
+      });
+    }
+    const MIN_PAS = 1.5;
     const step = () => {
       const diff = targetX - el.scrollLeft;
-      if (Math.abs(diff) < 0.5) { el.scrollLeft = targetX; return; }
+      // El llindar d'aturada ha de ser més gran que el pas mínim: si no,
+      // el bucle es passa de llarg i torna enrere sense parar (vibració).
+      if (Math.abs(diff) <= MIN_PAS) { el.scrollLeft = targetX; STRIP_SCROLL_X = targetX; rafId = null; return; }
       const move = diff * 0.10;
-      el.scrollLeft += Math.abs(move) < 1.5 ? Math.sign(move) * 1.5 : move;
+      el.scrollLeft += Math.abs(move) < MIN_PAS ? Math.sign(move) * MIN_PAS : move;
+      STRIP_SCROLL_X = el.scrollLeft;
       rafId = requestAnimationFrame(step);
     };
     const onWheel = (e) => {
       if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+      // Mentre el strip encara entra des de la dreta, el scroll és de la pàgina.
+      if (!locked) return;
+      // Ja al principi del strip i pujant: retornem el scroll a la pàgina,
+      // perquè el strip pugui tornar a sortir i es vegi el hero.
+      if (e.deltaY < 0 && el.scrollLeft <= 0 && targetX <= 0) return;
       e.preventDefault();
       const multiplier = e.deltaMode === 1 ? 30 : e.deltaMode === 2 ? 300 : 1;
       targetX = Math.max(0, Math.min(targetX + e.deltaY * multiplier, el.scrollWidth - el.clientWidth));
@@ -496,7 +653,7 @@ function StripMenu({ onOpen, lang, onNav }) {
       el.removeEventListener("wheel", onWheel);
       if (rafId) cancelAnimationFrame(rafId);
     };
-  }, []);
+  }, [locked]);
 
   const scrollPage = () => {
     const el = wrapRef.current;
@@ -506,7 +663,7 @@ function StripMenu({ onOpen, lang, onNav }) {
 
   return (
     <>
-      <aside className="strip-index-panel">
+      <aside className={`strip-index-panel${embedded ? " is-embedded" : ""}${locked ? " is-in" : ""}`}>
         <div className="strip-index-top">
           <span className="strip-index-eyebrow">Projectes</span>
           <nav className="strip-index-nav">
@@ -552,11 +709,11 @@ function StripMenu({ onOpen, lang, onNav }) {
         </div>
       )}
 
-      <div className="menu-strip-wrap" ref={wrapRef} style={{ display: focusedProject ? "none" : "flex" }}>
+      <div className={`menu-strip-wrap${embedded ? " is-embedded" : ""}`} ref={wrapRef} style={{ display: focusedProject ? "none" : "flex" }}>
         {filtered.map((p) => (
           <div key={p.id} className="menu-strip-item" data-id={p.id} onClick={() => onOpen(p.id)}>
-            <img src={p.cover} alt={p.title} />
-            <span className="menu-strip-num">{p.num.split(".").reverse().join(".")}</span>
+            <img src={p.cover} alt={p.title} decoding="async" />
+            <span className="menu-strip-num">{p.num}</span>
             <div className="menu-strip-info">
               <h2 className="menu-strip-title">{p.title}</h2>
               <span className="menu-strip-cat">{p.category[lang]}</span>
@@ -574,7 +731,11 @@ function StripMenu({ onOpen, lang, onNav }) {
           </div>
         </div>
       </div>
-      <button className="strip-next-btn" onClick={scrollPage} aria-label="Següents projectes" style={{ display: focusedProject ? "none" : "" }}>›</button>
+      <button
+        className={`strip-next-btn${embedded ? " is-embedded" : ""}${locked ? " is-in" : ""}`}
+        onClick={scrollPage}
+        aria-label="Següents projectes"
+        style={{ display: focusedProject || embedded && !locked ? "none" : "" }}>›</button>
     </>
   );
 }
@@ -638,39 +799,182 @@ function MobileMenuStrip({ lang, onNav, onOpen, open, onToggle }) {
 
 /* ============== Mobile home — pàgina única de scroll ============== */
 function MobileHome({ lang, onOpen, onNav }) {
-  const [heroIdx, setHeroIdx] = useState(0);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [filter, setFilter] = useState("all");
+  const deckRef = useRef(null);
   const projects = window.PROJECTS;
   const s = window.STRINGS[lang];
-  const catStr = MOBILE_FILTERS.map(f => f[lang] || f.ca).join(" / ");
+  // El filtre de la tira blanca mana sobre tota l'escena
+  const visible = filter === "all" ? projects : projects.filter(p => p.filter === filter);
+  const visibleKey = visible.map(p => p.id).join(",");
 
+  /* Una sola escena per a tot el mòbil.
+     A dalt de tot (sense scroll) els projectes són pestanyes amples a la
+     franja inferior: això és l'inici. En fer scroll, la primera pestanya es
+     desplega des de baix fins a aturar-se a la línia del header, mentre les
+     altres s'aprimen i es converteixen en tires amb només el número.
+     Tot es calcula a partir del scroll, sense inèrcia pròpia. */
   useEffect(() => {
-    const id = setInterval(() => setHeroIdx(i => (i + 1) % projects.length), 3000);
-    return () => clearInterval(id);
-  }, [projects.length]);
+    const deck = deckRef.current;
+    if (!deck) return;
+    const cards = Array.from(deck.querySelectorAll(".mobile-deck-card"));
+    if (!cards.length) return;
+    let rafId = null;
+
+    const paint = () => {
+      rafId = null;
+      const vh = window.innerHeight;
+      const nav = document.querySelector(".nav");
+      const line = nav ? Math.round(nav.getBoundingClientRect().bottom) : 50;
+      // p = 0 → inici (pestanyes) · p = 1 → primer projecte obert · p = 2 → segon...
+      const p = Math.max(0, Math.min(cards.length, -deck.getBoundingClientRect().top / vh));
+
+      // De pestanyes amples (inici) a tires fines (baralla)
+      const blend = Math.min(1, p);
+      const band = vh * (MOBILE_HOME_STACK + (MOBILE_BAND - MOBILE_HOME_STACK) * blend);
+      const step = band / MOBILE_QUEUE;
+
+      cards.forEach((el, i) => {
+        const d = i - p + 1; // a p=0 el primer projecte ja fa de pestanya (d=1)
+        let y;
+        if (d >= 1) {
+          // Pestanya / tira fent cua a la franja inferior
+          y = Math.min(vh, vh - band + (d - 1) * step);
+        } else if (d >= MOBILE_RISE) {
+          // Desplegant-se des de la franja fins a la línia del header
+          const k = (1 - d) / (1 - MOBILE_RISE);
+          y = (vh - band) + (line - (vh - band)) * k;
+        } else if (d >= 0) {
+          // STOP: aturat alineat amb la línia del header
+          y = line;
+        } else if (d >= -MOBILE_RISE) {
+          // El següent se l'emporta cap amunt i tapa la franja del header
+          y = line * (1 - -d / MOBILE_RISE);
+        } else {
+          y = 0;
+        }
+        el.style.transform = `translate3d(0,${y.toFixed(1)}px,0)`;
+        el.style.visibility = d > MOBILE_QUEUE + 0.5 ? "hidden" : "visible";
+
+        // Títol petit de la pestanya: només mentre som a l'inici.
+        // El número no s'esvaeix mai: es veu també a les tires i al header.
+        const tab = el.querySelector(".mobile-deck-tab-title");
+        if (tab) tab.style.opacity = String(Math.max(0, 1 - blend * 2.5));
+
+        // Títol gran: apareix quan les lletres arriben a 3/4 de pantalla i
+        // es veu al 100% quan són a mitja pantalla.
+        const info = el.querySelector(".mobile-deck-info");
+        if (info) {
+          const titolY = y + MOBILE_TITLE_TOP * vh;
+          info.style.opacity = String(Math.max(0, Math.min(1, (vh * 0.75 - titolY) / (vh * 0.25))));
+        }
+      });
+    };
+
+    const onScroll = () => { if (rafId === null) rafId = requestAnimationFrame(paint); };
+    paint();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      if (rafId) cancelAnimationFrame(rafId);
+    };
+  }, [visibleKey]);
+
+  // Canviar de filtre torna a l'inici, que és on es veuen les pestanyes noves
+  const triaFiltre = (key) => {
+    setFilter(key);
+    if (window.scrollY > 0) window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <div className="mobile-scroll-page">
 
-      {/* 1. Hero carousel */}
-      <section className="mobile-hero">
-        {projects.map((p, i) => (
-          <img key={p.id} className={`mobile-hero-img ${i === heroIdx ? "is-active" : ""}`}
-            src={p.cover} alt={p.title} />
-        ))}
-        <div className="mobile-hero-caption" onClick={() => onOpen(projects[heroIdx].id)}>
-          <h1 className="mobile-hero-title">{projects[heroIdx].title}</h1>
-          <span className="mobile-hero-meta">{projects[heroIdx].num} · {projects[heroIdx].category[lang]}</span>
-        </div>
-        <div className="mobile-hero-pager">
-          {projects.map((p, i) => (
-            <button key={p.id} className={i === heroIdx ? "is-active" : ""}
-              onClick={() => setHeroIdx(i)} aria-label={p.title} />
+      <div
+        className="mobile-deck"
+        ref={deckRef}
+        style={{
+          "--n": visible.length + 1,
+          "--title-top": MOBILE_TITLE_TOP,
+          "--home-stack": MOBILE_HOME_STACK
+        }}>
+        <div className="mobile-deck-stage">
+
+          {/* Fons de l'inici: imatge i tira de classificació. Les pestanyes
+              hi passen per sobre en desplegar-se. */}
+          <div className="mobile-home-back">
+            <div className="mobile-hero">
+              <img className="mobile-hero-img is-active" src={HOME_STILL_MOBILE_SRC} alt="Josep Rodon" />
+              {/* Versió vertical de la composició: la fotografia retallada i
+                  la tipografia remuntada, perquè encaixi a qualsevol mòbil. */}
+              <div className="mobile-hero-type">
+                {/* Mateix joc de línies que la composició de l'ordinador:
+                    una ratlla entra des de l'esquerra fins a JOSEP i una
+                    altra surt de RODON cap a la vora dreta. */}
+                <h1 className="mobile-hero-name">
+                  <span className="mobile-hero-line-row">
+                    <span className="mobile-hero-rule is-left" />
+                    <span>Josep</span>
+                  </span>
+                  <span className="mobile-hero-line-row is-second">
+                    <span>Rodon</span>
+                    <span className="mobile-hero-rule is-right" />
+                  </span>
+                </h1>
+                <p className="mobile-hero-claim">
+                  {lang === "en"
+                    ? <>Space Design, Products, 3D,<br />Installations and Environment</>
+                    : <>Space Design, Products, 3D,<br />Instalations and Envoirment</>}
+                </p>
+                <button
+                  className="mobile-hero-explore"
+                  onClick={() => window.scrollTo({ top: window.innerHeight, behavior: "smooth" })}>
+                  {lang === "en" ? "Explore" : "Explora"} <span aria-hidden="true">⟶</span>
+                </button>
+              </div>
+            </div>
+            <nav className="mobile-filters">
+              {STRIP_FILTERS.map(f => (
+                <button
+                  key={f.key}
+                  className={filter === f.key ? "is-active" : ""}
+                  onClick={() => triaFiltre(f.key)}>
+                  {f[lang] || f.ca}
+                </button>
+              ))}
+            </nav>
+            <div className="mobile-home-slot">
+              {visible.length === 0 &&
+              <p className="mobile-preview-buit">
+                {lang === "en" ? "Nothing here yet" : "Encara no hi ha res aquí"}
+              </p>
+              }
+            </div>
+          </div>
+
+          {visible.map((p, i) => (
+            <article
+              key={p.id}
+              className={`mobile-deck-card${i < MOBILE_INVERT_FIRST ? " is-invert" : ""}`}
+              style={{ zIndex: i + 1 }}
+              onClick={() => onOpen(p.id)}>
+              <div className="mobile-deck-media">
+                <img src={p.cover} alt="" decoding="async" />
+              </div>
+              <div className="mobile-deck-tab">
+                <span className="mobile-deck-tab-title">{p.title}</span>
+                <span className="mobile-deck-num">{p.num}</span>
+              </div>
+              <div className="mobile-deck-info">
+                <h2 className="mobile-deck-title">{p.title}</h2>
+                <span className="mobile-deck-cat">{p.category[lang]}</span>
+              </div>
+            </article>
           ))}
         </div>
-      </section>
+      </div>
 
-      {/* 2. Info strip — AYMA + Josep Rodon */}
+      {/* 3. Peu — AYMA + Josep Rodon + contacte */}
       <div className="mobile-info-strip">
         <div className="mobile-info-block">
           <h2>AYMA Studio <img src="assets/logo.png" alt="" style={{ height: "10px", width: "auto", objectFit: "contain" }} /></h2>
@@ -700,51 +1004,6 @@ function MobileHome({ lang, onOpen, onNav }) {
           <a href="https://www.instagram.com/ayma.std" target="_blank" rel="noreferrer">@ayma.std</a>
         </div>
       </section>
-
-      {/* 4. Menú desplegable — en flux, no fixe */}
-      <div className="mobile-menu-inline">
-        <div className="mobile-strip-bar-inline" onClick={() => setMenuOpen(o => !o)}>
-          <span className="mobile-strip-main">
-            <span className="mobile-strip-label">PROJECTES </span>
-            <span className="mobile-strip-cats">{catStr}</span>
-          </span>
-          <span className={`mobile-strip-arrow ${menuOpen ? "is-open" : ""}`}>▼</span>
-        </div>
-        {menuOpen && (
-          <div className="mobile-menu-panel-inline">
-            <div className="mobile-menu-section">
-              <span className="mobile-menu-eyebrow">PROJECTES:</span>
-              <div className="mobile-menu-projects-grid">
-                <div className="mobile-menu-col">
-                  {projects.slice(0, 5).map(p => (
-                    <button key={p.id} className="mobile-menu-proj-btn" onClick={() => onOpen(p.id)}>
-                      {p.title}
-                    </button>
-                  ))}
-                </div>
-                <div className="mobile-menu-col">
-                  {projects.slice(5).map(p => (
-                    <button key={p.id} className="mobile-menu-proj-btn" onClick={() => onOpen(p.id)}>
-                      {p.title}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* 5. Galeria de projectes */}
-      {projects.map(p => (
-        <div key={p.id} className="mobile-home-item" onClick={() => onOpen(p.id)}>
-          <img src={p.cover} alt={p.title} />
-          <div className="mobile-home-info">
-            <span className="mobile-home-title">{p.title}</span>
-            <span className="mobile-home-cat">{p.category[lang]}</span>
-          </div>
-        </div>
-      ))}
       <div className="mobile-home-cta">
         <button className="mobile-home-cta-btn" onClick={() => onNav("about")}>
           {lang === "ca" ? "Vols col·laborar en un projecte? Contactem" : "Want to collaborate on a project? Get in touch"}

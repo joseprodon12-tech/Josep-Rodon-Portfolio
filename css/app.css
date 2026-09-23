@@ -6,6 +6,9 @@
 :root {
   --t-accent: var(--accent-ink);
   --t-display: var(--font-sans);
+  /* Amplada del panell vertical d'índex del strip. El marge del strip,
+     la vista focusada i la línia d'entrada hi van lligats. */
+  --strip-index-w: clamp(120px, 10.08vw, 193px);
 }
 
 /* Dark mode */
@@ -89,14 +92,14 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
 
 .nav-links {
   display: flex;
-  gap: 26px;
+  gap: 20px;
 }
 .nav-link {
   background: none; border: 0; padding: 0;
   font: inherit;
   font-family: var(--font-sans);
-  font-size: 13px;
-  letter-spacing: 0.16em;
+  font-size: 14px;
+  letter-spacing: 0.17em;
   text-transform: uppercase;
   color: inherit;
   cursor: pointer;
@@ -819,6 +822,7 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
 }
 .proj-hero-next:hover { opacity: 1; }
 .proj-hero { position: relative; }
+.proj-back-mobile { display: none; }
 
 /* Project footer — next/prev */
 .proj-footer {
@@ -1030,7 +1034,7 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
 .strip-index-panel {
   position: fixed;
   left: 0; top: 0; bottom: 0;
-  width: clamp(87px, 7.33vw, 140px);
+  width: var(--strip-index-w);
   background: var(--bg);
   border-right: 1px solid var(--rule);
   z-index: 60;
@@ -1046,7 +1050,8 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
 }
 .strip-index-eyebrow {
   font-family: var(--font-sans);
-  font-size: 10px;
+  font-size: 11.5px;
+  font-weight: 700;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--fg-muted);
@@ -1062,7 +1067,8 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
   border: 0;
   padding: 0;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12.65px;
+  font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--fg-muted);
@@ -1094,7 +1100,8 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
   border: 0;
   padding: 0;
   font-family: var(--font-mono);
-  font-size: 9px;
+  font-size: 10.35px;
+  font-weight: 700;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--fg-muted);
@@ -1115,7 +1122,7 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
 /* Vista focusada: 1 projecte a pantalla completa */
 .strip-focused-view {
   position: fixed;
-  left: clamp(87px, 7.33vw, 140px);
+  left: var(--strip-index-w);
   top: 0; right: 0; bottom: 0;
   background: #000;
   z-index: 55;
@@ -1211,7 +1218,7 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
   overflow-x: auto;
   overflow-y: hidden;
   scrollbar-width: none;
-  margin-left: clamp(87px, 7.33vw, 140px);
+  margin-left: var(--strip-index-w);
 }
 .menu-strip-wrap::-webkit-scrollbar { display: none; }
 .menu-strip-item {
@@ -1326,6 +1333,104 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
   color: #fff;
   mix-blend-mode: difference;
   opacity: 0.7;
+}
+
+/* ===================================================
+   HOMEPAGE — hero + strip de projectes en un sol scroll
+   L'alçada de .home-stage = 1 pantalla de hero + HOME_ENTER_VH
+   pantalles de recorregut per fer entrar el strip (components.jsx).
+   =================================================== */
+.home-stage {
+  position: relative;
+  height: 260vh; /* 100vh de hero + 160vh de recorregut (HOME_ENTER_VH = 1.6) */
+}
+.home-stage-sticky {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+.home-stage-hero,
+.home-stage-strip {
+  position: absolute;
+  inset: 0;
+}
+.home-stage-hero {
+  z-index: 0;
+}
+/* El home de l'ordinador és una fotografia a sang: omple la pantalla
+   (object-fit: cover, com la resta d'imatges del lloc). */
+.home-hero-still {
+  background: #000;
+  cursor: pointer;
+}
+.home-hero-still .home-hero-img {
+  object-fit: cover;
+  /* Ancorada a la cantonada inferior esquerra: és el punt que sempre
+     s'ha de veure. L'ampliació és la mínima que omple la pantalla. */
+  object-position: left bottom;
+}
+.home-hero-still:hover .home-hero-img.is-active { transform: none; }
+/* Tota la imatge obre el menú de projectes */
+.home-still-open {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+.home-stage-hero .home-hero { height: 100%; }
+/* La imatge del hero porta z-index:1 (heretat del carrusel). Aquí sobra i
+   faria que tapés el strip, que ha de passar-hi per sobre. */
+.home-stage-hero .home-hero-img { z-index: auto; }
+.home-stage-strip {
+  z-index: 2;
+  will-change: transform;
+}
+/* Vora d'entrada del strip: línia fina que es difumina sobre la primera
+   imatge, perquè el primer projecte no aparegui tallat en sec. */
+.home-stage-strip::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--strip-index-w);
+  width: clamp(70px, 8vw, 130px);
+  z-index: 5;
+  pointer-events: none;
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.95) 0,
+    rgba(0, 0, 0, 0.95) 1.5px,
+    rgba(0, 0, 0, 0.55) 2.5px,
+    rgba(0, 0, 0, 0.28) 28%,
+    rgba(0, 0, 0, 0) 100%
+  );
+}
+.menu-strip-wrap.is-embedded { height: 100%; }
+
+/* L'índex només apareix quan el strip ja ha omplert la pantalla */
+.strip-index-panel.is-embedded {
+  transform: translateX(-102%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 560ms var(--ease-out-soft), opacity 300ms ease;
+}
+.strip-index-panel.is-embedded.is-in {
+  transform: none;
+  opacity: 1;
+  pointer-events: auto;
+}
+.strip-next-btn.is-embedded {
+  opacity: 0;
+  transition: opacity 300ms ease, transform 160ms ease;
+}
+.strip-next-btn.is-embedded.is-in { opacity: 0.7; }
+
+@media (prefers-reduced-motion: reduce) {
+  .strip-index-panel.is-embedded { transition: none; }
 }
 
 @media (max-width: 900px) {
@@ -1683,7 +1788,87 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
     position: relative;
     height: 100svh;
     overflow: hidden;
-    background: #000;
+    background: #ffffff;
+  }
+  /* Fotografia vertical a sang + tipografia remuntada a sobre */
+  .mobile-hero .mobile-hero-img { object-fit: cover; }
+  .mobile-hero-type {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    /* per sota de la línia del header, que fa 50px */
+    padding: 66px 18px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    color: #0d0d0c;
+    pointer-events: none;
+  }
+  .mobile-hero-name {
+    margin: 0;
+    width: 100%;
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: clamp(34px, 12vw, 58px);
+    line-height: 0.92;
+    letter-spacing: -0.03em;
+    text-transform: uppercase;
+  }
+  /* Joc de línies: entren i surten de les paraules fins a les vores */
+  .mobile-hero-line-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .mobile-hero-line-row.is-second {
+    padding-left: 12%;
+  }
+  .mobile-hero-rule {
+    height: 2px;
+    background: currentColor;
+    align-self: center;
+    margin-top: 0.12em;
+  }
+  .mobile-hero-rule.is-left {
+    flex: 0 0 auto;
+    width: 46px;
+    /* fins a la vora esquerra, saltant-se el marge del bloc */
+    margin-left: -18px;
+  }
+  .mobile-hero-rule.is-right {
+    flex: 1 1 auto;
+    /* fins a la vora dreta */
+    margin-right: -18px;
+  }
+  .mobile-hero-claim {
+    /* a la dreta, sobre el cel: a l'esquerra el cap se l'emportava */
+    align-self: flex-end;
+    text-align: right;
+    max-width: 66%;
+    margin: 14px 0 0;
+    font-family: var(--font-sans);
+    font-weight: 700;
+    font-size: 13px;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+  .mobile-hero-explore {
+    margin-top: auto;
+    align-self: flex-end;
+    pointer-events: auto;
+    background: none;
+    border: 0;
+    padding: 6px 0;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #0d0d0c;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
   }
   .mobile-hero-img {
     position: absolute;
@@ -1815,6 +2000,187 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
 
   /* Menú desplegable inline (no fixe) */
   .mobile-menu-inline { border-top: 1px solid var(--rule); }
+
+  /* ---- Fons de l'inici: imatge + tira de classificació ----
+     Viu dins de l'escena; les pestanyes hi passen per sobre. */
+  .mobile-home-back {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+  }
+  .mobile-home-back .mobile-hero {
+    height: auto;
+    flex: 1 1 auto;
+    min-height: 0;
+  }
+  .mobile-home-slot {
+    position: relative;
+    flex: 0 0 calc(var(--home-stack) * 100svh);
+    background: var(--bg);
+  }
+  .mobile-filters {
+    flex: 0 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 14px;
+    background: #ffffff;
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+  }
+  .mobile-filters button {
+    background: none;
+    border: 0;
+    padding: 0;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--fg-muted);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .mobile-filters button.is-active {
+    color: var(--fg);
+    border-bottom: 1px solid currentColor;
+    padding-bottom: 2px;
+  }
+  .mobile-preview-buit {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--fg-muted);
+  }
+
+  /* ---- Baralla de projectes (equivalent mòbil del strip) ----
+     El projecte obert ocupa la pantalla; els que vénen fan cua com a tires
+     fines a la franja inferior. Les posicions les calcula components.jsx
+     (MOBILE_BAND / MOBILE_QUEUE); aquí només hi ha l'aspecte. */
+  .mobile-deck {
+    position: relative;
+    height: calc(var(--n) * 100svh);
+    background: var(--bg);
+  }
+  .mobile-deck-stage {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+    overflow: hidden;
+  }
+  .mobile-deck-card {
+    position: absolute;
+    inset: 0;
+    height: 100svh;
+    overflow: hidden;
+    background: #0d0d0c;
+    cursor: pointer;
+    will-change: transform;
+    /* el cantell superior marca que és una peça que puja */
+    box-shadow: 0 -14px 34px rgba(0, 0, 0, 0.45);
+    border-top: 1px solid rgba(255, 255, 255, 0.16);
+  }
+  .mobile-deck-media {
+    position: absolute;
+    inset: 0;
+  }
+  .mobile-deck-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  /* Fila superior de cada projecte: títol de pestanya i número.
+     Graella de dues columnes → el número queda centrat a la meitat dreta
+     (3/4 d'amplada) i comparteix línia de base amb el títol. */
+  .mobile-deck-tab {
+    position: absolute;
+    top: 9px;
+    left: 0;
+    right: 0;
+    z-index: 3;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: baseline;
+    pointer-events: none;
+  }
+  .mobile-deck-tab-title {
+    padding-left: 16px;
+    font-family: var(--t-display);
+    font-weight: 700;
+    font-size: 15px;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: -0.01em;
+    color: #fff;
+    text-shadow: 0 1px 12px rgba(0, 0, 0, 0.55);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .mobile-deck-num {
+    justify-self: center;
+    font-family: var(--font-mono);
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: 0.06em;
+    color: #000;
+  }
+
+  .mobile-deck-info {
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    /* prou avall per no entrar mai al header i per caure al centre de la
+       imatge que s'està desplegant (components.jsx: MOBILE_TITLE_TOP) */
+    top: calc(var(--title-top) * 100svh);
+    bottom: auto;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    color: #fff;
+    pointer-events: none;
+    text-shadow: 0 1px 24px rgba(0, 0, 0, 0.5);
+  }
+  .mobile-deck-title {
+    font-family: var(--t-display);
+    font-weight: 700;
+    font-size: clamp(26px, 9vw, 44px);
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+  .mobile-deck-cat {
+    font-family: var(--font-mono);
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0.8;
+  }
+
+  /* Prova (components.jsx: MOBILE_INVERT_FIRST): en comptes de lletres
+     blanques amb ombra, el text inverteix el que té a sota. Sobre fons clar
+     es veu fosc i a l'inrevés, així sempre contrasta. */
+  .mobile-deck-card.is-invert .mobile-deck-tab-title,
+  .mobile-deck-card.is-invert .mobile-deck-title,
+  .mobile-deck-card.is-invert .mobile-deck-cat {
+    color: #ffffff;
+    mix-blend-mode: difference;
+    text-shadow: none;
+  }
   .mobile-strip-bar-inline {
     height: 44px;
     display: flex;
@@ -1923,7 +2289,25 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
   .proj-lang-switch .sep { color: var(--fg-muted); }
 
   /* Botons TORNAR / SEGÜENT PROJECTE: meitat de mida */
-  .proj-hero-back { font-size: 11px !important; }
-  .proj-hero-next { font-size: 11px !important; }
+  /* A la imatge no hi va cap botó: en vertical se la mengen.
+     El "tornar" es posa a sobre, amb aire, i el "següent projecte"
+     ja és al peu de la pàgina. */
+  .proj-hero-back, .proj-hero-next { display: none !important; }
+  .proj-back-mobile {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 4px 16px 14px;
+    padding: 6px 0;
+    background: none;
+    border: 0;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--fg);
+    cursor: pointer;
+  }
 
 } /* end @media mobile components */
