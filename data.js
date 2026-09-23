@@ -116,7 +116,7 @@ window.PROJECTS = [
       { src: "assets/projects/i-am-02.jpg", layout: "half-r", caption: { ca: "Muntatge: visió general de l'estudi", en: "Installation: general studio view" } },
       { src: "assets/projects/i-am-05.jpg", layout: "half-l", caption: { ca: "Torre: geometria vertical", en: "Tower: vertical geometry" } },
       { src: "assets/projects/i-am-06.jpg", layout: "half-r", caption: { ca: "Peça exposada: col·laboració amb moda", en: "Displayed piece: fashion collaboration" } },
-      { src: "assets/projects/i-am-esquema.png", layout: "ref", caption: { ca: "Esquema estètica: els quatre estudiants de moda", en: "Aesthetic scheme: the four fashion students" } }
+      { src: "assets/projects/i-am-esquema.jpg", layout: "ref", caption: { ca: "Esquema estètica: els quatre estudiants de moda", en: "Aesthetic scheme: the four fashion students" } }
     ],
     cover: "assets/projects/i-am-03.jpg",
     tile: "t-medium",
@@ -239,14 +239,14 @@ window.PROJECTS = [
       en: "The starting point is Entrepinos, a cluster of five weekend houses built by Héctor Barroso at Valle de Bravo, Mexico. Barroso's architecture departs from the place: local material, natural light, integration with the pine forest. But the complex, conceived as a collection of private retreats, does not generate community. Each house is self-sufficient, and between them there is nothing.\n\nThe project identifies this gap as an opportunity. The proposal is a public spine descending through the terrain, stitching the five houses along one side and generating everything the complex lacked. The asphalt path leads people down to each front door, but along the way it passes through gardens, work areas, an outdoor barbecue, a guest house, gym and sauna, pools, and rainwater collection systems that feed the natural pools at the lower level.\n\nThe proposal does not replace Barroso's architecture: it complements it. The model, at 1:200 scale, builds the terrain in plaster and represents the houses as white volumes; the intervention is suggested in blue. The scale allows the overall complex and the relationship between private and communal to be understood."
     },
     images: [
-      { src: "assets/projects/entre-pinos-planta.png", layout: "plan", caption: { ca: "Planta intervenció, 1:200", en: "Intervention plan, 1:200" } },
+      { src: "assets/projects/entre-pinos-planta.jpg", layout: "plan", caption: { ca: "Planta intervenció, 1:200", en: "Intervention plan, 1:200" } },
       { src: "assets/projects/entre-pinos-03.jpg", layout: "full", caption: { ca: "Maqueta: espina pública, zona de piscines i sauna", en: "Model: public spine, pool and sauna zone" } },
       { src: "assets/projects/entre-pinos-01.jpg", layout: "half-l", caption: { ca: "Maqueta: vista aèria, les cinc cases i la intervenció", en: "Model: aerial view, five houses and the intervention" } },
       { src: "assets/projects/entre-pinos-02.jpg", layout: "half-r", caption: { ca: "Maqueta: articulació del terreny", en: "Model: terrain articulation" } },
       { src: "assets/projects/entre-pinos-04.jpg", layout: "full", caption: { ca: "Maqueta general: conjunt de les cinc cases", en: "Full model: the five-house complex" } },
-      { src: "assets/projects/entre-pinos-detalls.png", layout: "plan", caption: { ca: "Axonometria i seccions: entrada, barbacoa i piscines, 1:50", en: "Axonometric and sections: entrance, barbecue and pools, 1:50" } }
+      { src: "assets/projects/entre-pinos-detalls.jpg", layout: "plan", caption: { ca: "Axonometria i seccions: entrada, barbacoa i piscines, 1:50", en: "Axonometric and sections: entrance, barbecue and pools, 1:50" } }
     ],
-    cover: "assets/projects/entre-pinos-planta.png",
+    cover: "assets/projects/entre-pinos-planta.jpg",
     tile: "t-medium"
   },
   {

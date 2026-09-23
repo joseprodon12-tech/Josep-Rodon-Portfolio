@@ -798,6 +798,56 @@ function MobileMenuStrip({ lang, onNav, onOpen, open, onToggle }) {
 }
 
 /* ============== Mobile home — pàgina única de scroll ============== */
+/* ---- Geometria de la baralla del mòbil ----
+   Aquestes quatre funcions són l'única descripció de l'escena: les fan
+   servir tant l'animació nativa lligada al scroll com el càlcul de reserva,
+   així les dues maneres no poden acabar dient coses diferents. */
+function mobilGeometria() {
+  const nav = document.querySelector(".nav");
+  return {
+    vh: window.innerHeight,
+    line: nav ? Math.round(nav.getBoundingClientRect().bottom) : 50
+  };
+}
+
+/* Píxels des de dalt de la carta i quan l'escena va pel punt p
+   (p = 0 → inici amb pestanyes · p = 1 → primer projecte obert · p = 2 → segon…) */
+function mobilPosicio(i, p, g) {
+  const d = i - p + 1; // a p=0 el primer projecte ja fa de pestanya (d=1)
+  const blend = Math.min(1, Math.max(0, p)); // de pestanyes amples a tires fines
+  const band = g.vh * (MOBILE_HOME_STACK + (MOBILE_BAND - MOBILE_HOME_STACK) * blend);
+  const step = band / MOBILE_QUEUE;
+  // Pestanya / tira fent cua a la franja inferior
+  if (d >= 1) return Math.min(g.vh, g.vh - band + (d - 1) * step);
+  // Desplegant-se des de la franja fins a la línia del header
+  if (d >= MOBILE_RISE) {
+    const k = (1 - d) / (1 - MOBILE_RISE);
+    return (g.vh - band) + (g.line - (g.vh - band)) * k;
+  }
+  // STOP: aturat alineat amb la línia del header
+  if (d >= 0) return g.line;
+  // El següent se l'emporta cap amunt i tapa la franja del header
+  if (d >= -MOBILE_RISE) return g.line * (1 - -d / MOBILE_RISE);
+  return 0;
+}
+
+/* S'amaga quan ja ha baixat del tot per sota de la pantalla: si es talla
+   abans, la tira de més avall desapareix de cop quan encara se li veu la vora. */
+function mobilVisible(i, p) { return (i - p + 1) <= MOBILE_QUEUE + 1; }
+
+/* Títol gran: apareix quan les lletres arriben a 3/4 de pantalla i es veu
+   al 100% quan són a mitja pantalla. */
+function mobilOpacitatInfo(y, g) {
+  const titolY = y + MOBILE_TITLE_TOP * g.vh;
+  return Math.max(0, Math.min(1, (g.vh * 0.75 - titolY) / (g.vh * 0.25)));
+}
+
+/* Títol petit de la pestanya: només mentre som a l'inici. El número no
+   s'esvaeix mai, es veu també a les tires i al header. */
+function mobilOpacitatTab(p) {
+  return Math.max(0, 1 - Math.min(1, Math.max(0, p)) * 2.5);
+}
+
 function MobileHome({ lang, onOpen, onNav }) {
   const [filter, setFilter] = useState("all");
   const deckRef = useRef(null);
@@ -812,71 +862,154 @@ function MobileHome({ lang, onOpen, onNav }) {
      franja inferior: això és l'inici. En fer scroll, la primera pestanya es
      desplega des de baix fins a aturar-se a la línia del header, mentre les
      altres s'aprimen i es converteixen en tires amb només el número.
-     Tot es calcula a partir del scroll, sense inèrcia pròpia. */
+
+     El moviment NO el dibuixa JavaScript fotograma a fotograma: es declara
+     una vegada com a animació lligada a la barra de scroll, i és el
+     navegador qui la mou. Al mòbil el scroll va per un fil a part, així que
+     tot el que es pinta des de JavaScript hi arriba tard i es veu a
+     tirades; d'aquesta manera les targetes segueixen el dit exactament.
+     Als navegadors que encara no ho suporten es fa servir el càlcul per
+     fotograma de tota la vida. */
   useEffect(() => {
     const deck = deckRef.current;
     if (!deck) return;
     const cards = Array.from(deck.querySelectorAll(".mobile-deck-card"));
     if (!cards.length) return;
+    const n = cards.length + 1; // alçada de l'escena, comptada en pantalles
+
+    const natiu = typeof CSS !== "undefined" && CSS.supports &&
+      CSS.supports("animation-timeline", "scroll()");
+
+    /* ---------- Camí bo: el navegador mou l'escena ell mateix ---------- */
+    if (natiu) {
+      const estil = document.createElement("style");
+      document.head.appendChild(estil);
+
+      // Fotogrames clau: als punts on el moviment canvia de tram, i fins
+      // allà on la carta es mou de debò.
+      const mostresDe = (i) => {
+        const punts = new Set([0, n]);
+        const posa = v => { if (v > 0 && v < n) punts.add(Math.round(v * 1000) / 1000); };
+        for (let q = 0; q <= 1; q += 0.05) posa(q);
+        // la cua es un pla inclinat: amb pocs punts ja hi cap
+        for (let q = Math.max(0, i - MOBILE_QUEUE - 1); q < i; q += 0.05) posa(q);
+        // el tram propi (pujada, aturada i sortida) es el que es mira de prop
+        for (let q = Math.max(0, i - 0.1); q <= Math.min(n, i + 1.7); q += 0.02) posa(q);
+        return [...punts].sort((a, b) => a - b);
+      };
+      // Treu els fotogrames del mig dels trams on el valor no canvia
+      const compacta = (llista, valor) => llista.filter((q, k) => {
+        const a = llista[k - 1], b = llista[k + 1];
+        return !a || !b || valor(a) !== valor(q) || valor(q) !== valor(b);
+      });
+
+      const construeix = () => {
+        const g = mobilGeometria();
+        const dalt = deck.getBoundingClientRect().top + window.scrollY;
+        const lligam = "animation-timeline:scroll(root block);animation-range:" +
+          Math.round(dalt) + "px " + Math.round(dalt + n * g.vh) + "px;";
+        let css = "";
+
+        cards.forEach((el, i) => {
+          el.setAttribute("data-carta", String(i));
+          const quadres = mostresDe(i).map(p => {
+            const y = mobilPosicio(i, p, g);
+            return {
+              pct: ((p / n) * 100).toFixed(3),
+              y: y.toFixed(1),
+              vis: mobilVisible(i, p) ? "visible" : "hidden",
+              op: mobilOpacitatInfo(y, g).toFixed(3)
+            };
+          });
+          css +=
+            "@keyframes ayma-carta-" + i + "{" +
+            compacta(quadres, q => q.y + q.vis)
+              .map(q => q.pct + "%{transform:translate3d(0," + q.y + "px,0);visibility:" + q.vis + "}").join("") +
+            "}" +
+            "@keyframes ayma-info-" + i + "{" +
+            compacta(quadres, q => q.op)
+              .map(q => q.pct + "%{opacity:" + q.op + "}").join("") +
+            "}" +
+            '.mobile-deck-card[data-carta="' + i + '"]{animation-name:ayma-carta-' + i + "}" +
+            '.mobile-deck-card[data-carta="' + i + '"] .mobile-deck-info{animation-name:ayma-info-' + i + "}";
+        });
+
+        // El títol de pestanya s'esvaeix igual a totes les cartes
+        css +=
+          "@keyframes ayma-tab{0%{opacity:1}" + ((0.4 / n) * 100).toFixed(3) + "%{opacity:0}100%{opacity:0}}" +
+          ".mobile-deck-card .mobile-deck-tab-title{animation-name:ayma-tab}" +
+          ".mobile-deck-card,.mobile-deck-card .mobile-deck-info,.mobile-deck-card .mobile-deck-tab-title{" +
+          "animation-duration:auto;animation-timing-function:linear;animation-fill-mode:both;" + lligam + "}";
+
+        estil.textContent = css;
+      };
+
+      construeix();
+      // Al mòbil la barra d'adreces fa créixer i minvar l'alçada contínuament:
+      // només val la pena refer l'escena si el canvi és de debò.
+      let ampleAnt = window.innerWidth, altAnt = window.innerHeight;
+      const onResize = () => {
+        if (window.innerWidth === ampleAnt && Math.abs(window.innerHeight - altAnt) < 120) return;
+        ampleAnt = window.innerWidth; altAnt = window.innerHeight;
+        construeix();
+      };
+      window.addEventListener("resize", onResize);
+      return () => {
+        window.removeEventListener("resize", onResize);
+        estil.remove();
+        cards.forEach(el => el.removeAttribute("data-carta"));
+      };
+    }
+
+    /* ---------- Reserva: càlcul per fotograma ----------
+       Per als navegadors sense animacions lligades al scroll (iPhone amb
+       iOS anterior al 26). Aquí cada fotograma compta, així que no es
+       consulta res del document mentre es mou —les mides es prenen una
+       vegada— i només s'escriu allò que ha canviat de debò. */
     let rafId = null;
+    let g = mobilGeometria();
+    let dalt = deck.getBoundingClientRect().top + window.scrollY;
+    const ant = cards.map(() => ({ y: null, vis: null, tab: null, info: null }));
+    const parts = cards.map(el => ({
+      el,
+      tab: el.querySelector(".mobile-deck-tab-title"),
+      info: el.querySelector(".mobile-deck-info")
+    }));
 
     const paint = () => {
       rafId = null;
-      const vh = window.innerHeight;
-      const nav = document.querySelector(".nav");
-      const line = nav ? Math.round(nav.getBoundingClientRect().bottom) : 50;
-      // p = 0 → inici (pestanyes) · p = 1 → primer projecte obert · p = 2 → segon...
-      const p = Math.max(0, Math.min(cards.length, -deck.getBoundingClientRect().top / vh));
-
-      // De pestanyes amples (inici) a tires fines (baralla)
-      const blend = Math.min(1, p);
-      const band = vh * (MOBILE_HOME_STACK + (MOBILE_BAND - MOBILE_HOME_STACK) * blend);
-      const step = band / MOBILE_QUEUE;
-
-      cards.forEach((el, i) => {
-        const d = i - p + 1; // a p=0 el primer projecte ja fa de pestanya (d=1)
-        let y;
-        if (d >= 1) {
-          // Pestanya / tira fent cua a la franja inferior
-          y = Math.min(vh, vh - band + (d - 1) * step);
-        } else if (d >= MOBILE_RISE) {
-          // Desplegant-se des de la franja fins a la línia del header
-          const k = (1 - d) / (1 - MOBILE_RISE);
-          y = (vh - band) + (line - (vh - band)) * k;
-        } else if (d >= 0) {
-          // STOP: aturat alineat amb la línia del header
-          y = line;
-        } else if (d >= -MOBILE_RISE) {
-          // El següent se l'emporta cap amunt i tapa la franja del header
-          y = line * (1 - -d / MOBILE_RISE);
-        } else {
-          y = 0;
+      const p = Math.max(0, Math.min(cards.length, (window.scrollY - dalt) / g.vh));
+      const opTab = mobilOpacitatTab(p);
+      for (let i = 0; i < parts.length; i++) {
+        const d = i - p + 1;
+        // fora de l'escena: es deixa amagada i no s'hi toca res més
+        if (d > MOBILE_QUEUE + 1) {
+          if (ant[i].vis !== "hidden") { parts[i].el.style.visibility = "hidden"; ant[i].vis = "hidden"; }
+          continue;
         }
-        el.style.transform = `translate3d(0,${y.toFixed(1)}px,0)`;
-        el.style.visibility = d > MOBILE_QUEUE + 0.5 ? "hidden" : "visible";
-
-        // Títol petit de la pestanya: només mentre som a l'inici.
-        // El número no s'esvaeix mai: es veu també a les tires i al header.
-        const tab = el.querySelector(".mobile-deck-tab-title");
-        if (tab) tab.style.opacity = String(Math.max(0, 1 - blend * 2.5));
-
-        // Títol gran: apareix quan les lletres arriben a 3/4 de pantalla i
-        // es veu al 100% quan són a mitja pantalla.
-        const info = el.querySelector(".mobile-deck-info");
-        if (info) {
-          const titolY = y + MOBILE_TITLE_TOP * vh;
-          info.style.opacity = String(Math.max(0, Math.min(1, (vh * 0.75 - titolY) / (vh * 0.25))));
-        }
-      });
+        const y = Math.round(mobilPosicio(i, p, g) * 10) / 10;
+        if (ant[i].vis !== "visible") { parts[i].el.style.visibility = "visible"; ant[i].vis = "visible"; }
+        if (ant[i].y !== y) { parts[i].el.style.transform = "translate3d(0," + y + "px,0)"; ant[i].y = y; }
+        const ot = Math.round(opTab * 100) / 100;
+        if (parts[i].tab && ant[i].tab !== ot) { parts[i].tab.style.opacity = String(ot); ant[i].tab = ot; }
+        const oi = Math.round(mobilOpacitatInfo(y, g) * 100) / 100;
+        if (parts[i].info && ant[i].info !== oi) { parts[i].info.style.opacity = String(oi); ant[i].info = oi; }
+      }
     };
 
     const onScroll = () => { if (rafId === null) rafId = requestAnimationFrame(paint); };
+    const onResize = () => {
+      g = mobilGeometria();
+      dalt = deck.getBoundingClientRect().top + window.scrollY;
+      ant.forEach(a => { a.y = a.vis = a.tab = a.info = null; });
+      onScroll();
+    };
     paint();
     window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("resize", onScroll);
+    window.addEventListener("resize", onResize);
     return () => {
       window.removeEventListener("scroll", onScroll);
-      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("resize", onResize);
       if (rafId) cancelAnimationFrame(rafId);
     };
   }, [visibleKey]);
