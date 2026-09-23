@@ -1521,7 +1521,7 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
   /* --- Pàgina de projecte --- */
   .proj-meta-bar {
     grid-template-columns: 1fr 1fr;
-    padding: 98px 16px 14px;
+    padding: 0 16px 14px;
     gap: 6px 16px;
   }
   .proj-meta-bar .num { grid-column: 1; grid-row: 1; }
@@ -2108,7 +2108,6 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
     top: 9px;
     left: 0;
     right: 0;
-    z-index: 3;
     display: grid;
     grid-template-columns: 1fr 1fr;
     align-items: baseline;
@@ -2123,7 +2122,11 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
     text-transform: uppercase;
     letter-spacing: -0.01em;
     color: #fff;
-    text-shadow: 0 1px 12px rgba(0, 0, 0, 0.55);
+    /* contorn fosc per sota de la lletra: es llegeix també sobre un plànol
+       blanc, i no cal cap vel que enfosqueixi la imatge */
+    paint-order: stroke fill;
+    -webkit-text-stroke: 2.4px rgba(0, 0, 0, 0.5);
+    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.35);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -2136,6 +2139,10 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
     line-height: 1;
     letter-spacing: 0.06em;
     color: #000;
+    /* el mateix, a l'inrevés: contorn clar perquè el negre es vegi sobre
+       una portada fosca */
+    paint-order: stroke fill;
+    -webkit-text-stroke: 2.4px rgba(255, 255, 255, 0.6);
   }
 
   .mobile-deck-info {
@@ -2146,13 +2153,14 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
        imatge que s'està desplegant (components.jsx: MOBILE_TITLE_TOP) */
     top: calc(var(--title-top) * 100svh);
     bottom: auto;
-    z-index: 2;
     display: flex;
     flex-direction: column;
     gap: 4px;
     color: #fff;
     pointer-events: none;
-    text-shadow: 0 1px 24px rgba(0, 0, 0, 0.5);
+    paint-order: stroke fill;
+    -webkit-text-stroke: 3px rgba(0, 0, 0, 0.42);
+    text-shadow: 0 1px 24px rgba(0, 0, 0, 0.4);
   }
   .mobile-deck-title {
     font-family: var(--t-display);
@@ -2289,15 +2297,14 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
   .proj-lang-switch .sep { color: var(--fg-muted); }
 
   /* Botons TORNAR / SEGÜENT PROJECTE: meitat de mida */
-  /* A la imatge no hi va cap botó: en vertical se la mengen.
-     El "tornar" es posa a sobre, amb aire, i el "següent projecte"
-     ja és al peu de la pàgina. */
+  /* A la imatge no hi va cap botó: en vertical se la mengen. L'ordre és
+     tornar, títol i imatge, i el "següent projecte" ja és al peu. */
   .proj-hero-back, .proj-hero-next { display: none !important; }
   .proj-back-mobile {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    margin: 4px 16px 14px;
+    margin: 92px 16px 12px;
     padding: 6px 0;
     background: none;
     border: 0;

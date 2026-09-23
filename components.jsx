@@ -40,9 +40,13 @@ const MOBILE_TITLE_TOP = 0.38;
 const MOBILE_HOME_STACK = 0.40;
 const MOBILE_HOME_QUEUE = 4;
 
-/* Prova: als N primers projectes les lletres inverteixen el color del fons
-   en comptes de ser blanques. Posa-ho a 0 per treure-ho o a 99 per a tots. */
-const MOBILE_INVERT_FIRST = 5;
+/* Als N primers projectes les lletres inverteixen el color del fons en
+   comptes de ser blanques (0 = cap, 99 = tots).
+   De moment a 0: la inversió no garanteix que es llegeixi. Amb una portada
+   d'un gris mitjà, el blanc invertit dóna el mateix gris mitjà i el títol
+   desapareix (provat amb Molta Fusta). Les lletres blanques amb el vel fosc
+   de .mobile-deck-tab es llegeixen sempre, sigui quina sigui la imatge. */
+const MOBILE_INVERT_FIRST = 0;
 
 /* ============== AVA Mark ============== */
 function AvaMark({ fill = "currentColor", accent }) {
@@ -368,6 +372,8 @@ function ProjectDetail({ project, onOpen, onBack, lang }) {
 
   return (
     <article className="proj-page" data-over="light">
+      <button className="proj-back-mobile" onClick={onBack}>← {s.back}</button>
+
       <div className="proj-meta-bar">
         <span className="num">{project.num}</span>
         <span className="title-cell">
@@ -376,8 +382,6 @@ function ProjectDetail({ project, onOpen, onBack, lang }) {
         <span className="institution">{project.institution[lang]}</span>
         <span className="date tabular">{project.date}</span>
       </div>
-
-      <button className="proj-back-mobile" onClick={onBack}>← {s.back}</button>
 
       <div className="proj-hero" data-over="dark">
         <img src={project.cover} alt={project.title} />
@@ -587,25 +591,41 @@ function ColumnsMenu({ tiles, onOpen }) {
 
 /* ============== Strip menu — portades en horitzontal ============== */
 const STRIP_FILTERS = [
-  { key: "all",        ca: "Tots",         en: "All" },
+  { key: "seleccio",   ca: "Selecció",     en: "Selection" },
   { key: "espais",     ca: "Espais",       en: "Spaces" },
   { key: "renders",    ca: "Renders 3D",   en: "3D Renders" },
   { key: "instalacio", ca: "Instal·lació", en: "Installation" },
   { key: "recerca",    ca: "Recerca",      en: "Research" },
 ];
 
+/* "Tots" només existeix a l'ordinador i sempre va al final: al mòbil els
+   projectes es troben navegant per categories. */
+const FILTER_TOTS = { key: "all", ca: "Tots", en: "All" };
+const STRIP_FILTERS_DESKTOP = [...STRIP_FILTERS, FILTER_TOTS];
+
+/* La tria d'entrada. L'ordre és el d'aquesta llista, no el de data.js. */
+const SELECCIO = ["cafe-vellut", "entre-pinos", "cine-infantil", "molta-fusta"];
+
+function projectesDe(key) {
+  if (key === "all") return window.PROJECTS;
+  if (key === "seleccio") return SELECCIO.map(id => window.PROJECTS.find(p => p.id === id)).filter(Boolean);
+  return window.PROJECTS.filter(p => p.filter === key);
+}
+
 /* Posició horitzontal del strip: es recorda entre visites, perquè en
    tornar d'un projecte no comenci de zero. */
 let STRIP_SCROLL_X = 0;
 
+/* I la categoria també: si en tornar d'un projecte es reiniciés, la
+   posició recuperada assenyalaria un projecte que ja no hi és. */
+let STRIP_FILTER = "seleccio";
+
 function StripMenu({ onOpen, lang, onNav, embedded = false, locked = true }) {
   const wrapRef = useRef(null);
-  const [activeFilter, setActiveFilter] = useState("all");
+  const [activeFilter, setActiveFilter] = useState(STRIP_FILTER);
   const [focusedId, setFocusedId] = useState(null);
 
-  const filtered = activeFilter === "all"
-    ? window.PROJECTS
-    : window.PROJECTS.filter(p => p.filter === activeFilter);
+  const filtered = projectesDe(activeFilter);
 
   const focusedProject = focusedId ? window.PROJECTS.find(p => p.id === focusedId) : null;
   const focusedIdx = focusedId ? window.PROJECTS.findIndex(p => p.id === focusedId) : -1;
@@ -648,9 +668,15 @@ function StripMenu({ onOpen, lang, onNav, embedded = false, locked = true }) {
       if (rafId) cancelAnimationFrame(rafId);
       rafId = requestAnimationFrame(step);
     };
+    // Amb el ratolí la posició la desa step(); amb un trackpad, en canvi,
+    // el strip es mou tot sol en horitzontal i no hi passa. Aquí es desa
+    // vingui com vingui.
+    const onStripScroll = () => { STRIP_SCROLL_X = el.scrollLeft; };
     el.addEventListener("wheel", onWheel, { passive: false });
+    el.addEventListener("scroll", onStripScroll, { passive: true });
     return () => {
       el.removeEventListener("wheel", onWheel);
+      el.removeEventListener("scroll", onStripScroll);
       if (rafId) cancelAnimationFrame(rafId);
     };
   }, [locked]);
@@ -667,17 +693,17 @@ function StripMenu({ onOpen, lang, onNav, embedded = false, locked = true }) {
         <div className="strip-index-top">
           <span className="strip-index-eyebrow">Projectes</span>
           <nav className="strip-index-nav">
-            {STRIP_FILTERS.map(f => (
+            {STRIP_FILTERS_DESKTOP.map(f => (
               <button
                 key={f.key}
                 className={activeFilter === f.key ? "is-active" : ""}
-                onClick={() => { setActiveFilter(f.key); setFocusedId(null); }}
+                onClick={() => { STRIP_FILTER = f.key; setActiveFilter(f.key); setFocusedId(null); }}
               >{f[lang] || f.ca}</button>
             ))}
           </nav>
         </div>
         <div className="strip-index-projects">
-          {window.PROJECTS.map(p => (
+          {filtered.map(p => (
             <button
               key={p.id}
               className={focusedId === p.id ? "is-active" : ""}
@@ -804,8 +830,15 @@ function MobileMenuStrip({ lang, onNav, onOpen, open, onToggle }) {
    així les dues maneres no poden acabar dient coses diferents. */
 function mobilGeometria() {
   const nav = document.querySelector(".nav");
+  /* L'alçada de referència és la de l'escena, no la de la finestra.
+     Al mòbil la barra d'adreces s'amaga en baixar i torna en pujar, i això
+     fa ballar window.innerHeight; l'escena, en canvi, està feta amb svh i
+     no es mou mai. Si es barregen les dues mides, en tornar a dalt les
+     targetes ja no quadren amb la tira de categories i la tapen a mitges. */
+  const escena = document.querySelector(".mobile-deck-stage");
+  const alt = escena ? escena.getBoundingClientRect().height : 0;
   return {
-    vh: window.innerHeight,
+    vh: alt || window.innerHeight,
     line: nav ? Math.round(nav.getBoundingClientRect().bottom) : 50
   };
 }
@@ -849,12 +882,12 @@ function mobilOpacitatTab(p) {
 }
 
 function MobileHome({ lang, onOpen, onNav }) {
-  const [filter, setFilter] = useState("all");
+  const [filter, setFilter] = useState(STRIP_FILTER);
   const deckRef = useRef(null);
   const projects = window.PROJECTS;
   const s = window.STRINGS[lang];
   // El filtre de la tira blanca mana sobre tota l'escena
-  const visible = filter === "all" ? projects : projects.filter(p => p.filter === filter);
+  const visible = projectesDe(filter);
   const visibleKey = visible.map(p => p.id).join(",");
 
   /* Una sola escena per a tot el mòbil.
@@ -906,8 +939,9 @@ function MobileHome({ lang, onOpen, onNav }) {
       const construeix = () => {
         const g = mobilGeometria();
         const dalt = deck.getBoundingClientRect().top + window.scrollY;
+        // el recorregut és exactament l'alçada de l'escena
         const lligam = "animation-timeline:scroll(root block);animation-range:" +
-          Math.round(dalt) + "px " + Math.round(dalt + n * g.vh) + "px;";
+          Math.round(dalt) + "px " + Math.round(dalt + deck.getBoundingClientRect().height) + "px;";
         let css = "";
 
         cards.forEach((el, i) => {
@@ -1016,6 +1050,7 @@ function MobileHome({ lang, onOpen, onNav }) {
 
   // Canviar de filtre torna a l'inici, que és on es veuen les pestanyes noves
   const triaFiltre = (key) => {
+    STRIP_FILTER = key;
     setFilter(key);
     if (window.scrollY > 0) window.scrollTo({ top: 0, behavior: "smooth" });
   };
