@@ -1844,6 +1844,23 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
     color: #0d0d0c;
     pointer-events: none;
   }
+  /* La composició del mòbil ja porta el nom i el lema dins de la imatge,
+     com la de l'ordinador. El text es queda al document —perquè els
+     lectors de pantalla i els cercadors el segueixin trobant— però no es
+     dibuixa. Si algun dia la imatge torna a ser només fotografia, treure
+     aquest bloc ho recupera. */
+  .mobile-hero-type .mobile-hero-name,
+  .mobile-hero-type .mobile-hero-claim {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
   .mobile-hero-name {
     margin: 0;
     width: 100%;
@@ -2197,7 +2214,9 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
     padding-left: 16px;
     font-family: var(--t-display);
     font-weight: 700;
-    font-size: 19px;
+    /* 19 px als telèfons normals; als més estrets baixa una mica perquè
+       CINECLUB INFANTIL no quedi tallat */
+    font-size: clamp(16px, 4.8vw, 19px);
     line-height: 1;
     text-transform: uppercase;
     letter-spacing: -0.01em;
