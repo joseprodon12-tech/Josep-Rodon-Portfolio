@@ -161,7 +161,10 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
 /* ---------- Page shell ---------- */
 .page {
   min-height: 100vh;
-  animation: jr-fade 520ms var(--ease-out-soft) both;
+  /* "backwards" i no "both": amb "both" el transform final (translateY(0))
+     es queda aplicat per sempre, i qualsevol element fixat a dins deixa
+     d'estar-ho respecte de la finestra (la barra de categories del mòbil). */
+  animation: jr-fade 520ms var(--ease-out-soft) backwards;
 }
 
 /* ===================================================
@@ -822,7 +825,7 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
 }
 .proj-hero-next:hover { opacity: 1; }
 .proj-hero { position: relative; }
-.proj-back-mobile { display: none; }
+.proj-back-mobile, .proj-back-flotant { display: none; }
 
 /* Project footer — next/prev */
 .proj-footer {
@@ -1300,7 +1303,8 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
   font-size: 14px;
   letter-spacing: 0.06em;
   color: #fff;
-  mix-blend-mode: difference;
+  paint-order: stroke fill;
+  -webkit-text-stroke: 2.4px rgba(0, 0, 0, 0.5);
   z-index: 2;
 }
 .menu-strip-info {
@@ -1321,7 +1325,8 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
   letter-spacing: -0.02em;
   line-height: 1;
   color: #fff;
-  mix-blend-mode: difference;
+  paint-order: stroke fill;
+  -webkit-text-stroke: 5px rgba(0, 0, 0, 0.45);
   margin: 0;
   white-space: nowrap;
 }
@@ -1331,8 +1336,9 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #fff;
-  mix-blend-mode: difference;
-  opacity: 0.7;
+  paint-order: stroke fill;
+  -webkit-text-stroke: 2px rgba(0, 0, 0, 0.45);
+  opacity: 0.9;
 }
 
 /* ===================================================
@@ -1781,7 +1787,44 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
   .nav-right > button:last-child { display: none; }
 
   /* --- Pàgina de scroll mòbil --- */
-  .mobile-scroll-page { display: block; }
+  .mobile-scroll-page { display: block; padding-bottom: var(--bar-h); }
+  /* El selector d'idioma només s'aixeca quan hi ha barra de categories,
+     és a dir a la pàgina de projectes, no dins d'una fitxa. */
+  .page:has(.mobile-scroll-page) ~ .lang-switch-fixed { bottom: calc(14px + var(--bar-h)); }
+
+  /* Tornar enrere sense haver de pujar fins a dalt ni baixar fins al peu */
+  .proj-back-flotant {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    position: fixed;
+    left: 16px;
+    bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    z-index: 80;
+    padding: 10px 16px;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--fg);
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(8px);
+    pointer-events: none;
+    transition: opacity 200ms ease, transform 200ms ease;
+  }
+  .proj-back-flotant.is-in {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
 
   /* Hero carousel mòbil */
   .mobile-hero {
@@ -2018,19 +2061,29 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
   }
   .mobile-home-slot {
     position: relative;
-    flex: 0 0 calc(var(--home-stack) * 100svh);
+    flex: 0 0 calc(var(--home-stack) * 100svh + var(--bar-h) - var(--home-stack) * var(--bar-h));
     background: var(--bg);
   }
+  /* Alçada de la barra de categories. La fan servir també el buit que se li
+     reserva a l'inici (.mobile-home-slot) i el càlcul de les posicions de
+     l'escena (mobilGeometria), perquè les tres coses quadrin sempre. */
+  :root { --bar-h: calc(46px + env(safe-area-inset-bottom, 0px)); }
+
   .mobile-filters {
-    flex: 0 0 auto;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 30;
+    height: var(--bar-h);
+    box-sizing: border-box;
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 6px;
-    padding: 12px 14px;
+    padding: 0 14px env(safe-area-inset-bottom, 0px);
     background: #ffffff;
     border-top: 1px solid var(--rule);
-    border-bottom: 1px solid var(--rule);
   }
   .mobile-filters button {
     background: none;
@@ -2050,6 +2103,36 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
     border-bottom: 1px solid currentColor;
     padding-bottom: 2px;
   }
+  /* Senyal que això es desplaça cap avall, a sobre de la pila de projectes */
+  .mobile-deck-avall {
+    position: absolute;
+    top: -40px;
+    left: 0;
+    right: 0;
+    z-index: 4;
+    text-align: center;
+    font-size: 26px;
+    line-height: 1;
+    color: #fff;
+    paint-order: stroke fill;
+    -webkit-text-stroke: 2px rgba(0, 0, 0, 0.45);
+    pointer-events: none;
+    animation: ayma-bota 1.8s ease-in-out infinite;
+  }
+  @keyframes ayma-bota {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(6px); }
+  }
+
+  .mobile-deck-obrir {
+    margin-top: 10px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0.95;
+  }
+
   .mobile-preview-buit {
     position: absolute;
     inset: 0;
@@ -2125,8 +2208,8 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
     /* contorn fosc per sota de la lletra: es llegeix també sobre un plànol
        blanc, i no cal cap vel que enfosqueixi la imatge */
     paint-order: stroke fill;
-    -webkit-text-stroke: 2.4px rgba(0, 0, 0, 0.5);
-    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.35);
+    -webkit-text-stroke: 1.6px rgba(0, 0, 0, 0.42);
+    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.3);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -2142,7 +2225,7 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
     /* el mateix, a l'inrevés: contorn clar perquè el negre es vegi sobre
        una portada fosca */
     paint-order: stroke fill;
-    -webkit-text-stroke: 2.4px rgba(255, 255, 255, 0.6);
+    -webkit-text-stroke: 1.6px rgba(255, 255, 255, 0.55);
   }
 
   .mobile-deck-info {
@@ -2159,7 +2242,7 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
     color: #fff;
     pointer-events: none;
     paint-order: stroke fill;
-    -webkit-text-stroke: 3px rgba(0, 0, 0, 0.42);
+    -webkit-text-stroke: 2px rgba(0, 0, 0, 0.34);
     text-shadow: 0 1px 24px rgba(0, 0, 0, 0.4);
   }
   .mobile-deck-title {

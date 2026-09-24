@@ -370,9 +370,37 @@ function ProjectDetail({ project, onOpen, onBack, lang }) {
   const idx = window.PROJECTS.findIndex((p) => p.id === project.id);
   const next = window.PROJECTS[(idx + 1) % window.PROJECTS.length];
 
+  /* Al mòbil, un cop has baixat per la fitxa, tornar enrere obligava a
+     pujar fins a dalt o a arribar fins al peu. Aquest botó apareix quan
+     els altres dos han quedat fora de pantalla. */
+  const daltRef = useRef(null);
+  const peuRef = useRef(null);
+  const [flotant, setFlotant] = useState(false);
+  useEffect(() => {
+    const dalt = daltRef.current, peu = peuRef.current;
+    if (!dalt || !peu || typeof IntersectionObserver === "undefined") return;
+    const veu = { dalt: true, peu: false };
+    const io = new IntersectionObserver(entrades => {
+      entrades.forEach(e => {
+        if (e.target === dalt) veu.dalt = e.isIntersecting;
+        if (e.target === peu) veu.peu = e.isIntersecting;
+      });
+      setFlotant(!veu.dalt && !veu.peu);
+    });
+    io.observe(dalt); io.observe(peu);
+    return () => io.disconnect();
+  }, [project.id]);
+
   return (
     <article className="proj-page" data-over="light">
-      <button className="proj-back-mobile" onClick={onBack}>← {s.back}</button>
+      <button className="proj-back-mobile" ref={daltRef} onClick={onBack}>← {s.back}</button>
+
+      <button
+        className={"proj-back-flotant" + (flotant ? " is-in" : "")}
+        onClick={onBack}
+        aria-label={s.back}>
+        <span aria-hidden="true">←</span> {s.back}
+      </button>
 
       <div className="proj-meta-bar">
         <span className="num">{project.num}</span>
@@ -440,7 +468,7 @@ function ProjectDetail({ project, onOpen, onBack, lang }) {
         })}
       </section>
 
-      <footer className="proj-footer">
+      <footer className="proj-footer" ref={peuRef}>
         <div className="proj-footer-cell" onClick={onBack}>
           <span className="label">← {s.back}</span>
           <span className="ttl">{s.selected_works}</span>
@@ -837,8 +865,14 @@ function mobilGeometria() {
      targetes ja no quadren amb la tira de categories i la tapen a mitges. */
   const escena = document.querySelector(".mobile-deck-stage");
   const alt = escena ? escena.getBoundingClientRect().height : 0;
+  const vh = alt || window.innerHeight;
+  // La barra de categories viu fixada a baix: les targetes que fan cua
+  // s'aturen a la seva vora, no a la de la pantalla.
+  const barra = document.querySelector(".mobile-filters");
+  const barraH = barra ? Math.round(barra.getBoundingClientRect().height) : 0;
   return {
-    vh: alt || window.innerHeight,
+    vh,
+    bottom: vh - barraH,
     line: nav ? Math.round(nav.getBoundingClientRect().bottom) : 50
   };
 }
@@ -848,14 +882,15 @@ function mobilGeometria() {
 function mobilPosicio(i, p, g) {
   const d = i - p + 1; // a p=0 el primer projecte ja fa de pestanya (d=1)
   const blend = Math.min(1, Math.max(0, p)); // de pestanyes amples a tires fines
-  const band = g.vh * (MOBILE_HOME_STACK + (MOBILE_BAND - MOBILE_HOME_STACK) * blend);
+  const terra = g.bottom !== undefined ? g.bottom : g.vh;
+  const band = terra * (MOBILE_HOME_STACK + (MOBILE_BAND - MOBILE_HOME_STACK) * blend);
   const step = band / MOBILE_QUEUE;
   // Pestanya / tira fent cua a la franja inferior
-  if (d >= 1) return Math.min(g.vh, g.vh - band + (d - 1) * step);
+  if (d >= 1) return Math.min(terra, terra - band + (d - 1) * step);
   // Desplegant-se des de la franja fins a la línia del header
   if (d >= MOBILE_RISE) {
     const k = (1 - d) / (1 - MOBILE_RISE);
-    return (g.vh - band) + (g.line - (g.vh - band)) * k;
+    return (terra - band) + (g.line - (terra - band)) * k;
   }
   // STOP: aturat alineat amb la línia del header
   if (d >= 0) return g.line;
@@ -875,10 +910,17 @@ function mobilOpacitatInfo(y, g) {
   return Math.max(0, Math.min(1, (g.vh * 0.75 - titolY) / (g.vh * 0.25)));
 }
 
-/* Títol petit de la pestanya: només mentre som a l'inici. El número no
-   s'esvaeix mai, es veu també a les tires i al header. */
+/* Títol petit de la pestanya: només mentre som a l'inici. */
 function mobilOpacitatTab(p) {
   return Math.max(0, 1 - Math.min(1, Math.max(0, p)) * 2.5);
+}
+
+/* El número acompanya la tira mentre fa cua i se'n va quan la targeta
+   comença a desplegar-se: a la imatge gran del projecte no hi pinta res. */
+function mobilOpacitatNum(i, p) {
+  const d = i - p + 1;
+  if (d >= 1) return 1;
+  return Math.max(0, Math.min(1, (d - MOBILE_RISE) / (1 - MOBILE_RISE)));
 }
 
 function MobileHome({ lang, onOpen, onNav }) {
@@ -952,7 +994,8 @@ function MobileHome({ lang, onOpen, onNav }) {
               pct: ((p / n) * 100).toFixed(3),
               y: y.toFixed(1),
               vis: mobilVisible(i, p) ? "visible" : "hidden",
-              op: mobilOpacitatInfo(y, g).toFixed(3)
+              op: mobilOpacitatInfo(y, g).toFixed(3),
+              num: mobilOpacitatNum(i, p).toFixed(3)
             };
           });
           css +=
@@ -964,15 +1007,20 @@ function MobileHome({ lang, onOpen, onNav }) {
             compacta(quadres, q => q.op)
               .map(q => q.pct + "%{opacity:" + q.op + "}").join("") +
             "}" +
+            "@keyframes ayma-num-" + i + "{" +
+            compacta(quadres, q => q.num)
+              .map(q => q.pct + "%{opacity:" + q.num + "}").join("") +
+            "}" +
             '.mobile-deck-card[data-carta="' + i + '"]{animation-name:ayma-carta-' + i + "}" +
-            '.mobile-deck-card[data-carta="' + i + '"] .mobile-deck-info{animation-name:ayma-info-' + i + "}";
+            '.mobile-deck-card[data-carta="' + i + '"] .mobile-deck-info{animation-name:ayma-info-' + i + "}" +
+            '.mobile-deck-card[data-carta="' + i + '"] .mobile-deck-num{animation-name:ayma-num-' + i + "}";
         });
 
         // El títol de pestanya s'esvaeix igual a totes les cartes
         css +=
           "@keyframes ayma-tab{0%{opacity:1}" + ((0.4 / n) * 100).toFixed(3) + "%{opacity:0}100%{opacity:0}}" +
-          ".mobile-deck-card .mobile-deck-tab-title{animation-name:ayma-tab}" +
-          ".mobile-deck-card,.mobile-deck-card .mobile-deck-info,.mobile-deck-card .mobile-deck-tab-title{" +
+          ".mobile-deck-card .mobile-deck-tab-title,.mobile-deck-avall{animation-name:ayma-tab}" +
+          ".mobile-deck-card,.mobile-deck-card .mobile-deck-info,.mobile-deck-card .mobile-deck-tab-title,.mobile-deck-card .mobile-deck-num,.mobile-deck-avall{" +
           "animation-duration:auto;animation-timing-function:linear;animation-fill-mode:both;" + lligam + "}";
 
         estil.textContent = css;
@@ -1003,17 +1051,22 @@ function MobileHome({ lang, onOpen, onNav }) {
     let rafId = null;
     let g = mobilGeometria();
     let dalt = deck.getBoundingClientRect().top + window.scrollY;
-    const ant = cards.map(() => ({ y: null, vis: null, tab: null, info: null }));
+    const ant = cards.map(() => ({ y: null, vis: null, tab: null, info: null, num: null }));
     const parts = cards.map(el => ({
       el,
       tab: el.querySelector(".mobile-deck-tab-title"),
-      info: el.querySelector(".mobile-deck-info")
+      info: el.querySelector(".mobile-deck-info"),
+      num: el.querySelector(".mobile-deck-num")
     }));
+
+    const senyal = deck.parentNode.querySelector(".mobile-deck-avall");
+    let antSenyal = null;
 
     const paint = () => {
       rafId = null;
       const p = Math.max(0, Math.min(cards.length, (window.scrollY - dalt) / g.vh));
-      const opTab = mobilOpacitatTab(p);
+      const opTab = Math.round(mobilOpacitatTab(p) * 100) / 100;
+      if (senyal && antSenyal !== opTab) { senyal.style.opacity = String(opTab); antSenyal = opTab; }
       for (let i = 0; i < parts.length; i++) {
         const d = i - p + 1;
         // fora de l'escena: es deixa amagada i no s'hi toca res més
@@ -1024,10 +1077,11 @@ function MobileHome({ lang, onOpen, onNav }) {
         const y = Math.round(mobilPosicio(i, p, g) * 10) / 10;
         if (ant[i].vis !== "visible") { parts[i].el.style.visibility = "visible"; ant[i].vis = "visible"; }
         if (ant[i].y !== y) { parts[i].el.style.transform = "translate3d(0," + y + "px,0)"; ant[i].y = y; }
-        const ot = Math.round(opTab * 100) / 100;
-        if (parts[i].tab && ant[i].tab !== ot) { parts[i].tab.style.opacity = String(ot); ant[i].tab = ot; }
+        if (parts[i].tab && ant[i].tab !== opTab) { parts[i].tab.style.opacity = String(opTab); ant[i].tab = opTab; }
         const oi = Math.round(mobilOpacitatInfo(y, g) * 100) / 100;
         if (parts[i].info && ant[i].info !== oi) { parts[i].info.style.opacity = String(oi); ant[i].info = oi; }
+        const on = Math.round(mobilOpacitatNum(i, p) * 100) / 100;
+        if (parts[i].num && ant[i].num !== on) { parts[i].num.style.opacity = String(on); ant[i].num = on; }
       }
     };
 
@@ -1035,7 +1089,7 @@ function MobileHome({ lang, onOpen, onNav }) {
     const onResize = () => {
       g = mobilGeometria();
       dalt = deck.getBoundingClientRect().top + window.scrollY;
-      ant.forEach(a => { a.y = a.vis = a.tab = a.info = null; });
+      ant.forEach(a => { a.y = a.vis = a.tab = a.info = a.num = null; });
       onScroll();
     };
     paint();
@@ -1047,6 +1101,20 @@ function MobileHome({ lang, onOpen, onNav }) {
       if (rafId) cancelAnimationFrame(rafId);
     };
   }, [visibleKey]);
+
+  /* Tocar una targeta: si és la que s'està veient desplegada, obre la fitxa;
+     si encara fa cua a baix, l'escena llisca fins a ella i es desplega. Així
+     el toc sempre fa alguna cosa i ensenya que això va cap avall. */
+  const tocarCarta = (i, id) => {
+    const deck = deckRef.current;
+    if (!deck) { onOpen(id); return; }
+    const g = mobilGeometria();
+    const dalt = deck.getBoundingClientRect().top + window.scrollY;
+    const p = (window.scrollY - dalt) / g.vh;
+    const d = i - p + 1;
+    if (d >= -0.05 && d <= MOBILE_RISE + 0.05) { onOpen(id); return; }
+    window.scrollTo({ top: Math.round(dalt + (i + 0.75) * g.vh), behavior: "smooth" });
+  };
 
   // Canviar de filtre torna a l'inici, que és on es veuen les pestanyes noves
   const triaFiltre = (key) => {
@@ -1096,22 +1164,17 @@ function MobileHome({ lang, onOpen, onNav }) {
                 </p>
                 <button
                   className="mobile-hero-explore"
-                  onClick={() => window.scrollTo({ top: window.innerHeight, behavior: "smooth" })}>
-                  {lang === "en" ? "Explore" : "Explora"} <span aria-hidden="true">⟶</span>
+                  onClick={() => window.scrollTo({ top: window.innerHeight * 0.75, behavior: "smooth" })}>
+                  {lang === "en" ? "Explore" : "Explora"}
                 </button>
               </div>
             </div>
-            <nav className="mobile-filters">
-              {STRIP_FILTERS.map(f => (
-                <button
-                  key={f.key}
-                  className={filter === f.key ? "is-active" : ""}
-                  onClick={() => triaFiltre(f.key)}>
-                  {f[lang] || f.ca}
-                </button>
-              ))}
-            </nav>
             <div className="mobile-home-slot">
+              {/* Sobre la pila de projectes: el senyal que això baixa.
+                  S'esvaeix al primer dit de scroll (.mobile-deck-avall). */}
+              {visible.length > 0 &&
+              <span className="mobile-deck-avall" aria-hidden="true">↓</span>
+              }
               {visible.length === 0 &&
               <p className="mobile-preview-buit">
                 {lang === "en" ? "Nothing here yet" : "Encara no hi ha res aquí"}
@@ -1125,7 +1188,7 @@ function MobileHome({ lang, onOpen, onNav }) {
               key={p.id}
               className={`mobile-deck-card${i < MOBILE_INVERT_FIRST ? " is-invert" : ""}`}
               style={{ zIndex: i + 1 }}
-              onClick={() => onOpen(p.id)}>
+              onClick={() => tocarCarta(i, p.id)}>
               <div className="mobile-deck-media">
                 <img src={p.cover} alt="" decoding="async" />
               </div>
@@ -1136,11 +1199,27 @@ function MobileHome({ lang, onOpen, onNav }) {
               <div className="mobile-deck-info">
                 <h2 className="mobile-deck-title">{p.title}</h2>
                 <span className="mobile-deck-cat">{p.category[lang]}</span>
+                <span className="mobile-deck-obrir">
+                  {lang === "en" ? "View project" : "Veure projecte"} <span aria-hidden="true">→</span>
+                </span>
               </div>
             </article>
           ))}
         </div>
       </div>
+
+      {/* Barra de categories: fixada a baix i fora de l'escena, perquè no
+          quedi mai tapada pels projectes que pugen. */}
+      <nav className="mobile-filters">
+        {STRIP_FILTERS.map(f => (
+          <button
+            key={f.key}
+            className={filter === f.key ? "is-active" : ""}
+            onClick={() => triaFiltre(f.key)}>
+            {f[lang] || f.ca}
+          </button>
+        ))}
+      </nav>
 
       {/* 3. Peu — AYMA + Josep Rodon + contacte */}
       <div className="mobile-info-strip">
