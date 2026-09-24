@@ -852,6 +852,28 @@ function MobileMenuStrip({ lang, onNav, onOpen, open, onToggle }) {
 }
 
 /* ============== Mobile home — pàgina única de scroll ============== */
+/* ---- Desplaçament suau que es pot aturar ----
+   El scroll suau del navegador, al mòbil, no es deixa interrompre: mentre
+   dura, la pàgina no respon al dit i sembla que s'hagi penjat. Aquest es
+   cancel·la a la primera que toques la pantalla. */
+let LLISCA_RAF = null;
+function aturaLlisca() {
+  if (LLISCA_RAF) { cancelAnimationFrame(LLISCA_RAF); LLISCA_RAF = null; }
+}
+function lliscaFinsA(desti, ms = 520) {
+  aturaLlisca();
+  const inici = window.scrollY;
+  const dist = desti - inici;
+  if (Math.abs(dist) < 2) return;
+  const t0 = performance.now();
+  const passa = (t) => {
+    const k = Math.min(1, (t - t0) / ms);
+    window.scrollTo(0, Math.round(inici + dist * (1 - Math.pow(1 - k, 3))));
+    LLISCA_RAF = k < 1 ? requestAnimationFrame(passa) : null;
+  };
+  LLISCA_RAF = requestAnimationFrame(passa);
+}
+
 /* ---- Geometria de la baralla del mòbil ----
    Aquestes quatre funcions són l'única descripció de l'escena: les fan
    servir tant l'animació nativa lligada al scroll com el càlcul de reserva,
@@ -1105,7 +1127,13 @@ function MobileHome({ lang, onOpen, onNav }) {
   /* Tocar una targeta: si és la que s'està veient desplegada, obre la fitxa;
      si encara fa cua a baix, l'escena llisca fins a ella i es desplega. Així
      el toc sempre fa alguna cosa i ensenya que això va cap avall. */
+  const tocRef = useRef({ y: 0, t: -1 });
   const tocarCarta = (i, id) => {
+    // Si la pàgina s'ha mogut entre que has posat el dit i l'has aixecat,
+    // allò era un scroll i no un toc. Només val si fa poc que hi ha hagut
+    // dit: així un clic que no ve de cap gest no queda mai descartat.
+    const toc = tocRef.current;
+    if (toc.t >= 0 && performance.now() - toc.t < 2000 && Math.abs(window.scrollY - toc.y) > 8) return;
     const deck = deckRef.current;
     if (!deck) { onOpen(id); return; }
     const g = mobilGeometria();
@@ -1113,14 +1141,27 @@ function MobileHome({ lang, onOpen, onNav }) {
     const p = (window.scrollY - dalt) / g.vh;
     const d = i - p + 1;
     if (d >= -0.05 && d <= MOBILE_RISE + 0.05) { onOpen(id); return; }
-    window.scrollTo({ top: Math.round(dalt + (i + 0.75) * g.vh), behavior: "smooth" });
+    lliscaFinsA(Math.round(dalt + (i + 0.75) * g.vh));
   };
+
+  useEffect(() => {
+    const atura = () => aturaLlisca();
+    window.addEventListener("touchstart", atura, { passive: true });
+    window.addEventListener("wheel", atura, { passive: true });
+    window.addEventListener("keydown", atura);
+    return () => {
+      window.removeEventListener("touchstart", atura);
+      window.removeEventListener("wheel", atura);
+      window.removeEventListener("keydown", atura);
+      aturaLlisca();
+    };
+  }, []);
 
   // Canviar de filtre torna a l'inici, que és on es veuen les pestanyes noves
   const triaFiltre = (key) => {
     STRIP_FILTER = key;
     setFilter(key);
-    if (window.scrollY > 0) window.scrollTo({ top: 0, behavior: "smooth" });
+    if (window.scrollY > 0) lliscaFinsA(0);
   };
 
   return (
@@ -1164,7 +1205,7 @@ function MobileHome({ lang, onOpen, onNav }) {
                 </p>
                 <button
                   className="mobile-hero-explore"
-                  onClick={() => window.scrollTo({ top: window.innerHeight * 0.75, behavior: "smooth" })}>
+                  onClick={() => lliscaFinsA(Math.round(window.innerHeight * 0.75))}>
                   {lang === "en" ? "Explore" : "Explora"}
                 </button>
               </div>
@@ -1188,6 +1229,7 @@ function MobileHome({ lang, onOpen, onNav }) {
               key={p.id}
               className={`mobile-deck-card${i < MOBILE_INVERT_FIRST ? " is-invert" : ""}`}
               style={{ zIndex: i + 1 }}
+              onPointerDown={() => { tocRef.current = { y: window.scrollY, t: performance.now() }; }}
               onClick={() => tocarCarta(i, p.id)}>
               <div className="mobile-deck-media">
                 <img src={p.cover} alt="" decoding="async" />
