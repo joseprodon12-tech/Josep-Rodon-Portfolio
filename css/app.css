@@ -781,28 +781,33 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
 }
 
 /* Back arrow over hero image */
+/* Tornar (ordinador): fix a dalt a l'esquerra mentre es baixa per la fitxa.
+   Pastilla de paper, com el flotant del mòbil: es llegeix sobre qualsevol foto. */
 .proj-hero-back {
-  position: absolute;
-  top: 20px;
+  position: fixed;
+  top: 108px;
   left: 20px;
-  z-index: 10;
-  background: none;
+  z-index: 90;
+  background: rgba(244, 239, 230, 0.92);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 0;
-  color: #000;
+  border-radius: 999px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  color: #111110;
   font-family: var(--font-mono);
-  font-size: 20px;
+  font-size: 12px;
+  font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   cursor: pointer;
-  padding: 0;
+  padding: 7px 14px;
   display: flex;
   align-items: center;
-  gap: 8px;
-  opacity: 0.85;
-  top: 20px;
-  transition: opacity 160ms ease;
+  gap: 6px;
+  transition: background 160ms ease;
 }
-.proj-hero-back:hover { opacity: 1; }
+.proj-hero-back:hover { background: #fff; }
 .proj-hero-next {
   position: absolute;
   bottom: 20px;
@@ -1253,6 +1258,7 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
 [data-id="edificis-poble9"] img { object-position: center center; }
 [data-id="casa-keremma"]   img { object-position: center 25%; }
 [data-id="entre-pinos"]    img { object-position: center center; }
+[data-id="pavello-mies"]   img { object-position: center center; }
 .menu-strip-item:hover img {
   transform: scale(1.05);
   filter: brightness(1);
@@ -1328,6 +1334,22 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
   margin: 0;
   white-space: nowrap;
 }
+/* Renders: CREATIU / CLIENT a mitja mida, just després del títol.
+   Al strip el títol no parteix mai; l'etiqueta, si no hi cap, baixa. */
+.render-tag {
+  display: inline-block;
+  font-size: 0.5em;
+  margin-left: 0.6em;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.menu-strip-title:has(.render-tag) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 0.6em;
+}
+.menu-strip-title .render-tag { margin-left: 0; }
 .menu-strip-cat {
   font-family: var(--font-mono);
   font-size: 9px;

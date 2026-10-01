@@ -364,6 +364,19 @@ function MenuGrid({ onOpen, lang, layout }) {
 
 }
 
+/* Renders: etiqueta CREATIU / CLIENT just després del títol, a mitja mida.
+   Va dins del mateix títol perquè aquest no es mogui; si no hi cap, salta
+   a la línia de sota. */
+const RENDER_TAGS = {
+  creatiu: { ca: "Creatiu", en: "Creative" },
+  client:  { ca: "Client",  en: "Client" },
+};
+function RenderTag({ project, lang }) {
+  const t = RENDER_TAGS[project.renderType];
+  if (!t) return null;
+  return <span className="render-tag">{t[lang] || t.ca}</span>;
+}
+
 /* ============== Project detail ============== */
 function ProjectDetail({ project, onOpen, onBack, lang }) {
   const s = window.STRINGS[lang];
@@ -411,9 +424,11 @@ function ProjectDetail({ project, onOpen, onBack, lang }) {
         <span className="date tabular">{project.date}</span>
       </div>
 
+      {/* Ordinador: fix a dalt a l'esquerra mentre baixes per la fitxa. */}
+      <button className="proj-hero-back" onClick={onBack}>← {s.back}</button>
+
       <div className="proj-hero" data-over="dark">
         <img src={project.cover} alt={project.title} />
-        <button className="proj-hero-back" onClick={onBack}>← {s.back}</button>
         <button className="proj-hero-next" onClick={() => { onOpen(next.id); window.scrollTo({ top: 0 }); }}>
           {next.title} →
         </button>
@@ -422,9 +437,9 @@ function ProjectDetail({ project, onOpen, onBack, lang }) {
       <section className="proj-intro">
         <div className="col-num">{project.num}</div>
         <div>
-          <h1>{project.title}</h1>
+          <h1>{project.title}<RenderTag project={project} lang={lang} /></h1>
           <p>{project.blurb[lang]}</p>
-          <p>{project.body[lang]}</p>
+          {project.body[lang] && <p>{project.body[lang]}</p>}
         </div>
         <div className="proj-sheet">
           <div className="proj-sheet-row"><span className="proj-sheet-k">{lang === "ca" ? "Tipologia" : "Type"}</span><span className="proj-sheet-v">{project.category[lang]}</span></div>
@@ -659,6 +674,29 @@ function StripMenu({ onOpen, lang, onNav, embedded = false, locked = true }) {
   const focusedIdx = focusedId ? window.PROJECTS.findIndex(p => p.id === focusedId) : -1;
   const nextFocused = focusedIdx >= 0 ? window.PROJECTS[(focusedIdx + 1) % window.PROJECTS.length] : null;
 
+  /* Renders: si l'etiqueta CREATIU/CLIENT no cap al costat del títol i baixa
+     de línia, el bloc creix cap amunt (està ancorat per sota) i el títol
+     pujaria. Es compensa baixant el bloc el que ha crescut. */
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const ajusta = () => {
+      el.querySelectorAll(".menu-strip-info").forEach(info => {
+        const h = info.querySelector(".menu-strip-title");
+        const tag = h && h.querySelector(".render-tag");
+        info.style.transform = "";
+        if (!tag) return;
+        const linia = parseFloat(getComputedStyle(h).fontSize);
+        const baixa = h.getBoundingClientRect().height - linia;
+        if (baixa > 1) info.style.transform = `translateY(${baixa}px)`;
+      });
+    };
+    ajusta();
+    window.addEventListener("resize", ajusta);
+    if (document.fonts) document.fonts.ready.then(ajusta);
+    return () => window.removeEventListener("resize", ajusta);
+  }, [activeFilter, lang, focusedId]);
+
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
@@ -769,7 +807,7 @@ function StripMenu({ onOpen, lang, onNav, embedded = false, locked = true }) {
             <img src={p.cover} alt={p.title} decoding="async" />
             <span className="menu-strip-num">{p.num}</span>
             <div className="menu-strip-info">
-              <h2 className="menu-strip-title">{p.title}</h2>
+              <h2 className="menu-strip-title">{p.title}<RenderTag project={p} lang={lang} /></h2>
               <span className="menu-strip-cat">{p.category[lang]}</span>
             </div>
           </div>
@@ -1239,7 +1277,7 @@ function MobileHome({ lang, onOpen, onNav }) {
                 <span className="mobile-deck-num">{p.num}</span>
               </div>
               <div className="mobile-deck-info">
-                <h2 className="mobile-deck-title">{p.title}</h2>
+                <h2 className="mobile-deck-title">{p.title}<RenderTag project={p} lang={lang} /></h2>
                 <span className="mobile-deck-cat">{p.category[lang]}</span>
                 <span className="mobile-deck-obrir">
                   {lang === "en" ? "View project" : "Veure projecte"} <span aria-hidden="true">→</span>

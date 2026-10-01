@@ -312,6 +312,148 @@ window.PROJECTS = [
     ],
     cover: "assets/projects/poble9-04.jpg",
     tile: "t-medium"
+  },
+  {
+    id: "pavello-mies",
+    num: "11",
+    title: "Pavelló Mies",
+    category: { ca: "Render 3D / Reinterpretació", en: "3D render / Reinterpretation" },
+    location: { ca: "Barcelona", en: "Barcelona" },
+    institution: { ca: "BAU, Centre Universitari d'Arts i Disseny", en: "BAU, University of Design and Fine Arts" },
+    date: "2025",
+    role: { ca: "Concepte, modelatge i render", en: "Concept, modelling and rendering" },
+    renderType: "creatiu",
+    filter: "renders",
+    blurb: {
+      ca: "El Pavelló Mies van der Rohe convertit en una casa. Un sol vidre corbat al centre i materials més domèstics transformen un espai fred i distant en un refugi, per això les imatges són de nit.",
+      en: "The Mies van der Rohe Pavilion turned into a home. A single curved glass wall at its centre and warmer materials transform a cold, distant space into a refuge, which is why the images are set at night."
+    },
+    body: { ca: "", en: "" },
+    images: [
+      { src: "assets/projects/pavello-mies-02.jpg", layout: "full", caption: { ca: "Exterior de nit: la sala d'exposició i el jardí", en: "Exterior at night: the gallery and the garden" } },
+      { src: "assets/projects/pavello-mies-03.jpg", layout: "full", caption: { ca: "Dormitori i bany, amb la làmina d'aigua", en: "Bedroom and bathroom, with the water strip" } },
+      { src: "assets/projects/pavello-mies-esbos.jpg", layout: "plan", caption: { ca: "Esbós inicial", en: "Initial sketch" } }
+    ],
+    cover: "assets/projects/pavello-mies-01.jpg",
+    tile: "t-medium"
+  },
+  {
+    id: "edifici-tic",
+    num: "12",
+    title: "Edifici TIC",
+    category: { ca: "Render 3D / Edifici", en: "3D render / Building" },
+    location: { ca: "Barcelona", en: "Barcelona" },
+    institution: { ca: "BAU, Centre Universitari d'Arts i Disseny", en: "BAU, University of Design and Fine Arts" },
+    date: "2025",
+    role: { ca: "Modelatge i render", en: "Modelling and rendering" },
+    renderType: "creatiu",
+    filter: "renders",
+    blurb: {
+      ca: "Un edifici per a empreses tecnològiques amb una pell d'acer verd: una retícula triangulada i panells perforats que es pleguen per filtrar la llum. Les imatges finals s'han acabat amb IA a partir del render.",
+      en: "A building for tech companies wrapped in a green steel skin: a triangulated grid and perforated panels that fold to filter the light. The final images were finished with AI on top of the render."
+    },
+    body: { ca: "", en: "" },
+    images: [
+      { src: "assets/projects/edifici-tic-02.jpg", layout: "full", caption: { ca: "Vista aèria: la retícula sobre el vidre", en: "Aerial view: the grid over the glass" } },
+      { src: "assets/projects/edifici-tic-03.jpg", layout: "half-l", caption: { ca: "Cantonada des de baix", en: "Corner from below" } },
+      { src: "assets/projects/edifici-tic-04.jpg", layout: "half-r", caption: { ca: "Detall dels panells perforats", en: "Detail of the perforated panels" } },
+      { src: "assets/projects/edifici-tic-model.jpg", layout: "plan", caption: { ca: "Modelatge a Rhino", en: "Modelling in Rhino" } }
+    ],
+    cover: "assets/projects/edifici-tic-01.jpg",
+    tile: "t-medium"
+  },
+  {
+    id: "espai-culte",
+    num: "13",
+    title: "Espai de Culte",
+    category: { ca: "Render 3D / Espai", en: "3D render / Space" },
+    location: { ca: "Barcelona", en: "Barcelona" },
+    institution: { ca: "BAU, Centre Universitari d'Arts i Disseny", en: "BAU, University of Design and Fine Arts" },
+    date: "2025",
+    role: { ca: "Modelatge i render", en: "Modelling and rendering" },
+    renderType: "creatiu",
+    filter: "renders",
+    blurb: {
+      ca: "Un espai de culte obert al paisatge sota una gran coberta. Escletxes al sostre deixen entrar la llum en franges sobre els bancs.",
+      en: "A place of worship open to the landscape beneath a large roof. Slits in the ceiling let light fall in strips across the pews."
+    },
+    body: { ca: "", en: "" },
+    images: [
+      { src: "assets/projects/espai-culte-02.jpg", layout: "full", caption: { ca: "Exterior: la coberta des del prat", en: "Exterior: the roof seen from the meadow" } },
+      { src: "assets/projects/espai-culte-03.jpg", layout: "half-l", caption: { ca: "Sota la coberta, obert al parc", en: "Under the roof, open to the park" } },
+      { src: "assets/projects/espai-culte-04.jpg", layout: "half-r", caption: { ca: "La nau en penombra", en: "The nave in half-light" } }
+    ],
+    cover: "assets/projects/espai-culte-01.jpg",
+    tile: "t-medium"
+  },
+  {
+    id: "les-fonts",
+    num: "14",
+    title: "Les Fonts",
+    category: { ca: "Render 3D / Habitatge", en: "3D render / Housing" },
+    location: { ca: "Les Fonts", en: "Les Fonts" },
+    institution: { ca: "Encàrrec per a estudi d'arquitectura", en: "Commission for an architecture studio" },
+    date: "2025",
+    role: { ca: "Visualització 3D", en: "3D visualisation" },
+    renderType: "client",
+    filter: "renders",
+    blurb: {
+      ca: "Renders d'un habitatge unifamiliar per a un estudi d'arquitectura: volum blanc, jardí amb piscina i porxo amb persianes de fusta.",
+      en: "Renders of a detached house for an architecture studio: a white volume, a garden with a pool and a porch with timber blinds."
+    },
+    body: { ca: "", en: "" },
+    images: [
+      { src: "assets/projects/les-fonts-01.jpg", layout: "half-l", caption: { ca: "Vista general des del jardí", en: "General view from the garden" } },
+      { src: "assets/projects/les-fonts-02.jpg", layout: "half-r", caption: { ca: "Porxo i persianes", en: "Porch and blinds" } }
+    ],
+    cover: "assets/projects/les-fonts-01.jpg",
+    tile: "t-medium"
+  },
+  {
+    id: "sant-pere-alt",
+    num: "15",
+    title: "Sant Pere Alt",
+    category: { ca: "Render 3D / Interiorisme", en: "3D render / Interiors" },
+    location: { ca: "Sant Pere Alt", en: "Sant Pere Alt" },
+    institution: { ca: "Encàrrec per a estudi d'arquitectura", en: "Commission for an architecture studio" },
+    date: "2025",
+    role: { ca: "Visualització 3D", en: "3D visualisation" },
+    renderType: "client",
+    filter: "renders",
+    blurb: {
+      ca: "Renders d'una reforma interior per a un estudi d'arquitectura. Dues opcions per a la cuina, amb i sense fals sostre, per ajudar a decidir.",
+      en: "Renders of an interior refurbishment for an architecture studio. Two options for the kitchen, with and without a dropped ceiling, to help make the call."
+    },
+    body: { ca: "", en: "" },
+    images: [
+      { src: "assets/projects/sant-pere-alt-01.jpg", layout: "full", caption: { ca: "Opció 2, amb fals sostre sobre la cuina", en: "Option 2, dropped ceiling over the kitchen" } },
+      { src: "assets/projects/sant-pere-alt-02.jpg", layout: "half-l", caption: { ca: "Opció 1, sense fals sostre: vista des de l'entrada", en: "Option 1, no dropped ceiling: view from the entrance" } },
+      { src: "assets/projects/sant-pere-alt-03.jpg", layout: "half-r", caption: { ca: "Opció 1, amb fals sostre: vista des de l'entrada", en: "Option 1, dropped ceiling: view from the entrance" } }
+    ],
+    cover: "assets/projects/sant-pere-alt-01.jpg",
+    tile: "t-medium"
+  },
+  {
+    id: "vilamaniscle",
+    num: "16",
+    title: "Vilamaniscle",
+    category: { ca: "Render 3D / Habitatge", en: "3D render / Housing" },
+    location: { ca: "Vilamaniscle, Alt Empordà", en: "Vilamaniscle, Alt Empordà" },
+    institution: { ca: "Encàrrec per a estudi d'arquitectura", en: "Commission for an architecture studio" },
+    date: "2025",
+    role: { ca: "Visualització 3D", en: "3D visualisation" },
+    renderType: "client",
+    filter: "renders",
+    blurb: {
+      ca: "Renders d'un habitatge per a un estudi d'arquitectura: la cuina oberta sota la pèrgola i un interior de formigó al voltant del pati de l'escala.",
+      en: "Renders of a house for an architecture studio: the open kitchen beneath the pergola and a concrete interior around the stair courtyard."
+    },
+    body: { ca: "", en: "" },
+    images: [
+      { src: "assets/projects/vilamaniscle-02.jpg", layout: "full", caption: { ca: "Interior: el pati de l'escala", en: "Interior: the stair courtyard" } }
+    ],
+    cover: "assets/projects/vilamaniscle-01.jpg",
+    tile: "t-medium"
   }
 ];
 
@@ -325,7 +467,13 @@ window.MENU_TILES = [
   { id: "rrr",             title: "RRR",                date: "2025",       category: "Recerca de materials",         img: "assets/projects/rrr-01.jpg",            size: "t-thumb", filter: "recerca" },
   { id: "entre-pinos",     title: "Entre Pinos",        date: "2025",       category: "Anàlisi / Paisatgisme",        img: "assets/projects/entre-pinos-03.jpg",    size: "t-thumb", filter: "espais" },
   { id: "casa-keremma",    title: "Casa R en Keremma",  date: "2025",       category: "Anàlisi / Representació",      img: "assets/projects/casa-keremma-01.jpg",   size: "t-thumb", filter: "instalacio" },
-  { id: "edificis-poble9", title: "Edificis Poble9",    date: "2025",       category: "Fotografia",                   img: "assets/projects/poble9-04.jpg",         size: "t-thumb", filter: "recerca" }
+  { id: "edificis-poble9", title: "Edificis Poble9",    date: "2025",       category: "Fotografia",                   img: "assets/projects/poble9-04.jpg",         size: "t-thumb", filter: "recerca" },
+  { id: "pavello-mies",    title: "Pavelló Mies", date: "2025", category: "Render 3D",              img: "assets/projects/pavello-mies-01.jpg",   size: "t-thumb", filter: "renders" },
+  { id: "edifici-tic",     title: "Edifici TIC",        date: "2025",       category: "Render 3D",                    img: "assets/projects/edifici-tic-01.jpg",    size: "t-thumb", filter: "renders" },
+  { id: "espai-culte",     title: "Espai de Culte",     date: "2025",       category: "Render 3D",                    img: "assets/projects/espai-culte-01.jpg",    size: "t-thumb", filter: "renders" },
+  { id: "les-fonts",       title: "Les Fonts",          date: "2025",       category: "Render 3D",                    img: "assets/projects/les-fonts-01.jpg",      size: "t-thumb", filter: "renders" },
+  { id: "sant-pere-alt",   title: "Sant Pere Alt",      date: "2025",       category: "Render 3D",                    img: "assets/projects/sant-pere-alt-01.jpg",  size: "t-thumb", filter: "renders" },
+  { id: "vilamaniscle",    title: "Vilamaniscle",       date: "2025",       category: "Render 3D",                    img: "assets/projects/vilamaniscle-01.jpg",   size: "t-thumb", filter: "renders" }
 ];
 
 window.FILTER_KEYS = ["all", "instalacio", "espais", "recerca"];
