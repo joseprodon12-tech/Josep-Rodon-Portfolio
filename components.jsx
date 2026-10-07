@@ -188,7 +188,6 @@ function HeroStill({ onReveal, onNav, lang }) {
       {onNav &&
       <button className="home-still-about" onClick={() => onNav("about")}>
         About
-        <svg viewBox="0 0 48 12" aria-hidden="true"><path d="M0 6h46M40 1l6 5-6 5" fill="none" stroke="currentColor" strokeWidth="1.4" /></svg>
       </button>
       }
     </section>);
