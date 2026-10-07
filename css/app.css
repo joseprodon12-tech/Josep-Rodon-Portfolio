@@ -22,6 +22,9 @@ html[data-mode="dark"] {
 }
 
 html, body { background: var(--bg); color: var(--fg); }
+/* Sense això, lliscar dos dits cap al costat al trackpad del Mac fa
+   "enrere" al navegador en lloc de moure el strip. */
+html, body { overscroll-behavior-x: none; }
 body { margin: 0; min-height: 100vh; overflow-x: hidden; }
 
 /* ---------- Top nav (fixed, logo separate, text difference) ---------- */
@@ -742,6 +745,23 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
 .f-third-l { grid-column: 1 / 5; }
 .f-third-c { grid-column: 5 / 9; }
 .f-third-r { grid-column: 9 / -1; }
+/* Graella compacta: `layout: "span-N"` ocupa N de les 12 columnes i les
+   peces es col·loquen soles una darrere l'altra. Per a projectes amb molta
+   documentació (plànols, diagrames, fotos de maqueta). */
+.f-span-2  { grid-column: span 2; }
+.f-span-3  { grid-column: span 3; }
+.f-span-4  { grid-column: span 4; }
+.f-span-5  { grid-column: span 5; }
+.f-span-6  { grid-column: span 6; }
+.f-span-7  { grid-column: span 7; }
+.f-span-8  { grid-column: span 8; }
+.f-span-9  { grid-column: span 9; }
+[class^="f-span-"] img { background: var(--paper-pure); }
+
+/* Portada que no s'ha de retallar (dibuixos): sencera i centrada. */
+.proj-hero.is-contain { background: var(--paper-pure); }
+.proj-hero.is-contain img { object-fit: contain; padding: 24px 0; box-sizing: border-box; }
+
 .f-text   { grid-column: 3 / 10; padding: 32px 0; }
 .f-text p {
   font-size: 16px;
@@ -762,6 +782,15 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
 .f-plan img {
   max-width: 100%;
   height: auto;
+}
+/* Dibuix vertical (axonometries): no ha d'omplir l'amplada o seria
+   més alt que la pantalla. */
+.proj-body .f-plan-tall img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 88vh;
+  align-self: center;
 }
 
 /* Reference image — small, tucked to the right */
@@ -895,6 +924,27 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
 .about-page h1 em { color: var(--t-accent); font-style: italic; }
 .about-page p { font-size: 14px; line-height: 1.6; max-width: 56ch; margin: 0 0 14px; }
 .about-side { display: flex; flex-direction: column; gap: 24px; }
+/* Foto de grup: retallada a les persones i la maqueta (la meitat de baix). */
+.about-photo {
+  margin: 0 0 40px;
+  width: min(100%, 420px);
+}
+.about-photo img {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  object-position: center 78%;
+  display: block;
+  background: var(--paper-pure);
+}
+.about-photo figcaption {
+  margin-top: 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
 .about-block .eyebrow {
   font-family: var(--font-sans);
   font-size: 10px;
@@ -1406,6 +1456,40 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
   padding: 0;
   cursor: pointer;
 }
+/* About: sobre la samarreta, a la dreta de la cara. La foto (2400 × 1457)
+   omple la pantalla ancorada a baix a l'esquerra, així que el botó es
+   col·loca en píxels de la foto multiplicats per l'escala real (--s):
+   segueix la samarreta a qualsevol mida de pantalla. */
+.home-hero-still {
+  --s: max(100vw / 2400, 100vh / 1457);
+}
+.home-still-about {
+  position: absolute;
+  z-index: 7;
+  left: calc(var(--s) * 1065);
+  top: calc(100% - var(--s) * 88);
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--s) * 18);
+  background: none;
+  border: 0;
+  padding: 0;
+  color: #000;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-weight: 700;
+  font-size: calc(var(--s) * 34); /* l'EXPLORE de la foto fa ~56 */
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  line-height: 1;
+  cursor: pointer;
+}
+.home-still-about svg {
+  width: calc(var(--s) * 58);
+  height: auto;
+  transition: transform 200ms ease;
+}
+.home-still-about:hover svg { transform: translateX(4px); }
+.home-still-about:focus-visible { outline: 1px solid #000; outline-offset: 6px; }
 .home-stage-hero .home-hero { height: 100%; }
 /* La imatge del hero porta z-index:1 (heretat del carrusel). Aquí sobra i
    faria que tapés el strip, que ha de passar-hi per sobre. */
@@ -1414,19 +1498,22 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
   z-index: 2;
   will-change: transform;
 }
-/* Vora d'entrada del strip: línia fina que es difumina sobre la primera
-   imatge, perquè el primer projecte no aparegui tallat en sec. */
+/* Vora d'entrada del strip: ara la porta el panell de l'índex. Una línia
+   fina que es difumina cap al hero, perquè el strip no entri tallat en sec. */
 .home-stage-strip::before {
   content: "";
   position: absolute;
   top: 0;
   bottom: 0;
-  left: var(--strip-index-w);
+  left: 0;
   width: clamp(70px, 8vw, 130px);
+  transform: translateX(-100%);
+  /* Amb el hero quiet, l'ombra quedaria a la vora dreta de la pantalla */
+  opacity: var(--vora, 1);
   z-index: 5;
   pointer-events: none;
   background: linear-gradient(
-    to right,
+    to left,
     rgba(0, 0, 0, 0.95) 0,
     rgba(0, 0, 0, 0.95) 1.5px,
     rgba(0, 0, 0, 0.55) 2.5px,
@@ -1436,27 +1523,15 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
 }
 .menu-strip-wrap.is-embedded { height: 100%; }
 
-/* L'índex només apareix quan el strip ja ha omplert la pantalla */
-.strip-index-panel.is-embedded {
-  transform: translateX(-102%);
-  opacity: 0;
-  pointer-events: none;
-  transition: transform 560ms var(--ease-out-soft), opacity 300ms ease;
-}
-.strip-index-panel.is-embedded.is-in {
-  transform: none;
-  opacity: 1;
-  pointer-events: auto;
-}
+/* L'índex entra amb el strip, enganxat al primer projecte: el panell és
+   `fixed`, però dins de .home-stage-strip (que porta transform) es
+   col·loca respecte del strip i es mou amb ell. */
 .strip-next-btn.is-embedded {
   opacity: 0;
   transition: opacity 300ms ease, transform 160ms ease;
 }
 .strip-next-btn.is-embedded.is-in { opacity: 0.7; }
 
-@media (prefers-reduced-motion: reduce) {
-  .strip-index-panel.is-embedded { transition: none; }
-}
 
 @media (max-width: 900px) {
   .home-strip { grid-template-columns: 1fr; gap: 16px; }
@@ -1572,6 +1647,10 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
   .f-third-l, .f-third-c, .f-third-r,
   .f-left, .f-right,
   .f-ref { grid-column: 1 / -1; }
+
+  /* Graella compacta al mòbil: les petites van de dues en dues */
+  .f-span-2, .f-span-3 { grid-column: span 6; }
+  .f-span-4, .f-span-5, .f-span-6, .f-span-7, .f-span-8, .f-span-9 { grid-column: 1 / -1; }
 
   .f-ref img { width: 100%; opacity: 1; }
   .f-ref figcaption { width: 100%; }

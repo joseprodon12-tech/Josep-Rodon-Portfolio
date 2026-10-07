@@ -175,7 +175,7 @@ function HeroCarousel({ projects, onOpen, lang, onNav, paused = false }) {
 }
 
 /* ============== Homepage — imatge fixa de fons ============== */
-function HeroStill({ onReveal, lang }) {
+function HeroStill({ onReveal, onNav, lang }) {
   return (
     <section className="home-hero home-hero-still" data-over="dark">
       <img className="home-hero-img is-active" src={HOME_STILL_SRC} alt="Josep Rodon" />
@@ -184,6 +184,12 @@ function HeroStill({ onReveal, lang }) {
         className="home-still-open"
         onClick={onReveal}
         aria-label={lang === "en" ? "See projects" : "Veure projectes"} />
+      }
+      {onNav &&
+      <button className="home-still-about" onClick={() => onNav("about")}>
+        About
+        <svg viewBox="0 0 48 12" aria-hidden="true"><path d="M0 6h46M40 1l6 5-6 5" fill="none" stroke="currentColor" strokeWidth="1.4" /></svg>
+      </button>
       }
     </section>);
 
@@ -274,11 +280,11 @@ function HomeStage({ projects, onOpen, lang, onNav }) {
         <div
           className="home-stage-hero"
           style={{ pointerEvents: enter > 0.15 ? "none" : "auto" }}>
-          <HeroStill onReveal={reveal} lang={lang} />
+          <HeroStill onReveal={reveal} onNav={onNav} lang={lang} />
         </div>
         <div
           className="home-stage-strip"
-          style={{ transform: `translate3d(${(1 - enter) * 100}%,0,0)` }}>
+          style={{ transform: `translate3d(${(1 - enter) * 100}%,0,0)`, "--vora": Math.min(1, enter * 12) }}>
           <StripMenu onOpen={onOpen} lang={lang} onNav={onNav} embedded locked={locked} />
         </div>
       </div>
@@ -427,7 +433,7 @@ function ProjectDetail({ project, onOpen, onBack, lang }) {
       {/* Ordinador: fix a dalt a l'esquerra mentre baixes per la fitxa. */}
       <button className="proj-hero-back" onClick={onBack}>← {s.back}</button>
 
-      <div className="proj-hero" data-over="dark">
+      <div className={"proj-hero" + (project.coverFit === "contain" ? " is-contain" : "")} data-over="dark">
         <img src={project.cover} alt={project.title} />
         <button className="proj-hero-next" onClick={() => { onOpen(next.id); window.scrollTo({ top: 0 }); }}>
           {next.title} →
@@ -439,7 +445,7 @@ function ProjectDetail({ project, onOpen, onBack, lang }) {
         <div>
           <h1>{project.title}<RenderTag project={project} lang={lang} /></h1>
           <p>{project.blurb[lang]}</p>
-          {project.body[lang] && <p>{project.body[lang]}</p>}
+          {project.body[lang] && project.body[lang].split(/\n\n+/).map((par, i) => <p key={i}>{par}</p>)}
         </div>
         <div className="proj-sheet">
           <div className="proj-sheet-row"><span className="proj-sheet-k">{lang === "ca" ? "Tipologia" : "Type"}</span><span className="proj-sheet-v">{project.category[lang]}</span></div>
@@ -467,8 +473,8 @@ function ProjectDetail({ project, onOpen, onBack, lang }) {
           const cls = {
             full: "f-full", "half-l": "f-half-l", "half-r": "f-half-r",
             "third-l": "f-third-l", "third-c": "f-third-c", "third-r": "f-third-r",
-            plan: "f-plan", ref: "f-ref"
-          }[im.layout] || "f-full";
+            plan: "f-plan", "plan-tall": "f-plan f-plan-tall", ref: "f-ref"
+          }[im.layout] || (/^span-\d+$/.test(im.layout) ? "f-" + im.layout : "f-full");
           return (
             <figure key={i} className={cls}>
               {im.type === "video"
@@ -498,12 +504,23 @@ function ProjectDetail({ project, onOpen, onBack, lang }) {
 }
 
 /* ============== About ============== */
+/* Foto amb l'equip de L'Art d'Habitar (la mateixa del projecte).
+   Si el fitxer fallés, el bloc no surt. */
+const ABOUT_PHOTO_SRC = "assets/projects/art-habitar-equip.jpg";
+
 function About({ lang }) {
   const s = window.STRINGS[lang];
+  const [ambFoto, setAmbFoto] = useState(true);
   return (
     <section className="about-page" data-over="light">
       <div className="col-num">0.0</div>
       <div>
+        {ambFoto &&
+        <figure className="about-photo">
+          <img src={ABOUT_PHOTO_SRC} alt={lang === "ca" ? "Josep Rodon amb l'equip de L'Art d'Habitar" : "Josep Rodon with the L'Art d'Habitar team"} onError={() => setAmbFoto(false)} />
+          <figcaption>{lang === "ca" ? "Amb l'equip de L'Art d'Habitar, BAU" : "With the L'Art d'Habitar team, BAU"}</figcaption>
+        </figure>
+        }
         <h1>
           {lang === "ca" ?
           <>Josep Rodon — <em>disseny espacial</em>, interiors i direcció artística.</> :
@@ -647,7 +664,7 @@ const FILTER_TOTS = { key: "all", ca: "Tots", en: "All" };
 const STRIP_FILTERS_DESKTOP = [...STRIP_FILTERS, FILTER_TOTS];
 
 /* La tria d'entrada. L'ordre és el d'aquesta llista, no el de data.js. */
-const SELECCIO = ["cafe-vellut", "entre-pinos", "cine-infantil", "molta-fusta"];
+const SELECCIO = ["cafe-vellut", "arrels", "alter-bn", "entre-pinos", "cine-infantil"];
 
 function projectesDe(key) {
   if (key === "all") return window.PROJECTS;
@@ -721,16 +738,38 @@ function StripMenu({ onOpen, lang, onNav, embedded = false, locked = true }) {
       STRIP_SCROLL_X = el.scrollLeft;
       rafId = requestAnimationFrame(step);
     };
+    /* Dos gestos, un sol camí. La roda del ratolí (vertical) mou el strip
+       amb suavitzat; el lliscament lateral del trackpad el mou directe,
+       perquè el gest ja porta la seva pròpia inèrcia. Tots dos comparteixen
+       targetX: si no, després d'un lliscament lateral la roda tornaria el
+       strip a la posició vella. Al hero (embedded) el gest lateral també
+       fa entrar el strip, i al principi del strip el fa sortir. */
     const onWheel = (e) => {
-      if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
-      // Mentre el strip encara entra des de la dreta, el scroll és de la pàgina.
-      if (!locked) return;
-      // Ja al principi del strip i pujant: retornem el scroll a la pàgina,
-      // perquè el strip pugui tornar a sortir i es vegi el hero.
-      if (e.deltaY < 0 && el.scrollLeft <= 0 && targetX <= 0) return;
-      e.preventDefault();
+      if (e.target.closest(".menu-overlay")) return;
+      if (embedded && !e.target.closest(".home-stage-sticky")) return;
+      if (el.offsetParent === null) return; // projecte enfocat: el strip és amagat
+      const lateral = Math.abs(e.deltaX) > Math.abs(e.deltaY);
       const multiplier = e.deltaMode === 1 ? 30 : e.deltaMode === 2 ? 300 : 1;
-      targetX = Math.max(0, Math.min(targetX + e.deltaY * multiplier, el.scrollWidth - el.clientWidth));
+      const d = (lateral ? e.deltaX : e.deltaY) * multiplier;
+      if (!d) return;
+      const alPrincipi = el.scrollLeft <= 0 && targetX <= 0;
+      // Mentre el strip encara entra, o si som al principi i es tira enrere,
+      // el gest és de la pàgina. El vertical el fa el navegador; el lateral
+      // l'hem de convertir nosaltres en scroll vertical.
+      if (!locked || (d < 0 && alPrincipi)) {
+        if (lateral && embedded) { e.preventDefault(); window.scrollBy(0, d); }
+        return;
+      }
+      e.preventDefault();
+      const max = el.scrollWidth - el.clientWidth;
+      if (lateral) {
+        if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+        el.scrollLeft = Math.max(0, Math.min(el.scrollLeft + d, max));
+        targetX = el.scrollLeft;
+        STRIP_SCROLL_X = targetX;
+        return;
+      }
+      targetX = Math.max(0, Math.min(targetX + d, max));
       if (rafId) cancelAnimationFrame(rafId);
       rafId = requestAnimationFrame(step);
     };
@@ -738,14 +777,16 @@ function StripMenu({ onOpen, lang, onNav, embedded = false, locked = true }) {
     // el strip es mou tot sol en horitzontal i no hi passa. Aquí es desa
     // vingui com vingui.
     const onStripScroll = () => { STRIP_SCROLL_X = el.scrollLeft; };
-    el.addEventListener("wheel", onWheel, { passive: false });
+    // A la finestra i no al strip: el gest pot començar sobre el hero o
+    // sobre el panell de l'índex, i també ha de comptar.
+    window.addEventListener("wheel", onWheel, { passive: false });
     el.addEventListener("scroll", onStripScroll, { passive: true });
     return () => {
-      el.removeEventListener("wheel", onWheel);
+      window.removeEventListener("wheel", onWheel);
       el.removeEventListener("scroll", onStripScroll);
       if (rafId) cancelAnimationFrame(rafId);
     };
-  }, [locked]);
+  }, [locked, embedded]);
 
   const scrollPage = () => {
     const el = wrapRef.current;

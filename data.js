@@ -454,6 +454,85 @@ window.PROJECTS = [
     ],
     cover: "assets/projects/vilamaniscle-01.jpg",
     tile: "t-medium"
+  },
+  {
+    id: "art-habitar",
+    num: "17",
+    title: "L'Art d'Habitar",
+    category: { ca: "Rehabilitació / Habitatge i taller", en: "Refurbishment / Housing and studios" },
+    location: { ca: "Barri Gòtic, Barcelona", en: "Gothic Quarter, Barcelona" },
+    institution: { ca: "BAU, Centre Universitari d'Arts i Disseny", en: "BAU, University of Design and Fine Arts" },
+    date: "2025",
+    role: { ca: "Disseny, plànols i maqueta", en: "Design, drawings and model-making" },
+    collaborators: { ca: "Berta Magallón, Ainhoa Camino i Martina Curto", en: "Berta Magallón, Ainhoa Camino and Martina Curto" },
+    filter: "espais",
+    blurb: {
+      ca: "Un edifici abandonat del Gòtic convertit en casa i taller per a un col·lectiu d'artistes. Viure, crear i exposar en un mateix lloc.",
+      en: "An abandoned building in the Gothic Quarter turned into homes and studios for an artists' collective. Living, making and exhibiting under one roof."
+    },
+    body: {
+      ca: "L'encàrrec era triar uns nous habitants per a un edifici buit del barri Gòtic. Vam escollir un col·lectiu d'artistes que necessita alhora casa i taller. Cada planta acull tres artistes, i cada habitació es divideix entre la zona de treball i la de descans. La planta baixa queda lliure per a exposicions i per a les activitats que els artistes vulguin proposar.\n\nUn buit central travessa l'edifici de baix a dalt. Il·lumina, regula la temperatura i fa circular l'aire, i també és el pas d'una grua que puja i baixa materials i obres. La proposta vol donar opcions a qui li costa viure de la seva feina artística, i desdibuixar la línia entre la vida i el treball.",
+      en: "The brief was to choose new residents for an empty building in the Gothic Quarter. We chose an artists' collective that needs both a home and a studio. Each floor houses three artists, and each room is split between a work area and a rest area. The ground floor is left open for exhibitions and whatever activities the artists want to run.\n\nA central void runs through the building from bottom to top. It brings in light, regulates temperature and moves air, and it is also the shaft for a hoist that lifts materials and finished pieces up and down. The proposal aims to give options to people who struggle to make a living from their art, and to blur the line between life and work."
+    },
+    images: [
+      { src: "assets/projects/art-habitar-planta-tipus.jpg", layout: "span-6", caption: { ca: "Planta tipus: tres artistes per planta, 1:50", en: "Typical floor: three artists per floor, 1:50" } },
+      { src: "assets/projects/art-habitar-planta-baixa.jpg", layout: "span-6", caption: { ca: "Planta baixa: espai lliure per a exposicions, 1:50", en: "Ground floor: open space for exhibitions, 1:50" } },
+      { src: "assets/projects/art-habitar-seccio-compartida.jpg", layout: "span-7", caption: { ca: "Secció per la zona compartida i el buit central, 1:50", en: "Section through the shared area and central void, 1:50" } },
+      { src: "assets/projects/art-habitar-seccio-privada.jpg", layout: "span-5", caption: { ca: "Secció per la zona privada, 1:50", en: "Section through the private area, 1:50" } },
+      { src: "assets/projects/art-habitar-interior.jpg", layout: "span-8", caption: { ca: "Habitació: descans a un costat, taller a l'altre", en: "Room: rest on one side, studio on the other" } },
+      { src: "assets/projects/art-habitar-artistes.jpg", layout: "span-4", caption: { ca: "Els habitants", en: "The residents" } },
+      { src: "assets/projects/art-habitar-diagrames-seccio.jpg", layout: "plan", caption: { ca: "Diagrames: clima a l'estiu i a l'hivern, distribució, grua i materials", en: "Diagrams: summer and winter climate, layout, hoist and materials" } },
+      { src: "assets/projects/art-habitar-diagrames-planta.jpg", layout: "plan", caption: { ca: "Diagrames: retícula, públic-privat, agregació, nuclis i enderroc", en: "Diagrams: grid, public-private, aggregation, cores and demolition" } },
+      { src: "assets/projects/art-habitar-emplacament.jpg", layout: "plan", caption: { ca: "Estat actual i emplaçament al Gòtic", en: "Existing state and site in the Gothic Quarter" } },
+      { src: "assets/projects/art-habitar-facana-principal.jpg", layout: "span-6", caption: { ca: "Façana principal, 1:50", en: "Main façade, 1:50" } },
+      { src: "assets/projects/art-habitar-facana-posterior.jpg", layout: "span-6", caption: { ca: "Façana posterior, 1:50", en: "Rear façade, 1:50" } },
+      { src: "assets/projects/art-habitar-maqueta-01.jpg", layout: "span-2", caption: { ca: "Maqueta i làmines", en: "Model and boards" } },
+      { src: "assets/projects/art-habitar-maqueta-02.jpg", layout: "span-3", caption: { ca: "Maqueta: planta tipus", en: "Model: typical floor" } },
+      { src: "assets/projects/art-habitar-maqueta-03.jpg", layout: "span-3", caption: { ca: "Maqueta: coberta i grua", en: "Model: roof and hoist" } },
+      { src: "assets/projects/art-habitar-maqueta-04.jpg", layout: "span-2", caption: { ca: "Fotografiant la maqueta", en: "Photographing the model" } },
+      { src: "assets/projects/art-habitar-equip.jpg", layout: "span-2", caption: { ca: "L'equip", en: "The team" } }
+    ],
+    cover: "assets/projects/art-habitar-axo.jpg",
+    coverFit: "contain",
+    tile: "t-medium"
+  },
+  {
+    id: "arrels",
+    num: "18",
+    title: "Arrels",
+    category: { ca: "Rehabilitació / Habitatge col·lectiu", en: "Refurbishment / Co-living" },
+    location: { ca: "Carrer de Lull 120-130, Poblenou, Barcelona", en: "Carrer de Lull 120-130, Poblenou, Barcelona" },
+    institution: { ca: "BAU, Projectes de Disseny d'Interiors II", en: "BAU, Interior Design Projects II" },
+    date: "05-2026",
+    role: { ca: "Disseny", en: "Design" },
+    collaborators: { ca: "Ares Torra, Raquel Ariane Farias i Maria José Cuartas", en: "Ares Torra, Raquel Ariane Farias and Maria José Cuartas" },
+    filter: "espais",
+    blurb: {
+      ca: "Una nau industrial buida del Poblenou convertida en casa i lloc de treball per a una comunitat d'agricultors. Amb el mínim, transformar el màxim: la nau creix a mesura que hi arriba gent.",
+      en: "An empty industrial warehouse in Poblenou turned into a home and workplace for a community of farmers. Doing the most with the least: the building grows as people arrive."
+    },
+    body: {
+      ca: "El projecte parteix de dues idees. La primera és Nuance, el concepte que ens va tocar: intervenir poc i deixar que petits gestos transformin tot l'espai. L'estructura, la coberta i la retícula de bigues de la nau es mantenen i guien tot el que s'hi afegeix. La segona és Arcosanti, la ciutat experimental que Paolo Soleri va començar el 1970 al desert d'Arizona. No té un pla tancat: creix per fases, a mesura que la comunitat ho necessita, i la construeixen els mateixos que hi viuen i hi treballen.\n\nD'aquí ve la tria dels habitants: agricultors, gent que vol viure de la terra. Partint de la nau buida, la intervenció cobreix només el bàsic per viure i treballar: lavabos, cuina, tallers, una zona de coliving i una botiga on vendre el que s'hi cultiva.\n\nLa nau s'organitza en quatre atmosferes, de la més pública a la més privada. La façana original es retira i unes càpsules de fusta per al conreu donen directament al carrer; entre l'una i l'altra, el panot continua cap a dins i convida a entrar. A l'interior hi ha la botiga, oberta a tothom, amb vista als horts i al carrer. Darrere, la zona compartida dels habitants: cuina, lavabos, magatzem, descans i tallers. La separen de la botiga uns llistons verticals de fusta que giren sobre si mateixos per obrir o tancar la vista segons el moment.\n\nA dalt, un segon pis segueix la quadrícula que marquen les bigues de la nau. Els pilars fan fàcil aixecar parets, i cada nou habitant construeix només el mínim per dormir-hi: si hi viuen cinc persones, hi ha cinc habitacions. Com a Arcosanti, l'espai creix amb la comunitat. Els plànols finals són una hipòtesi de com podria haver evolucionat la nau.",
+      en: "The project starts from two ideas. The first is Nuance, the concept we were given: intervene little and let small gestures transform the whole space. The warehouse's structure, roof and grid of beams are kept and guide everything that is added. The second is Arcosanti, the experimental town Paolo Soleri began in 1970 in the Arizona desert. It has no fixed plan: it grows in phases, as the community needs it, and is built by the same people who live and work there.\n\nThat is where the residents come from: farmers, people who want to make a living from the land. Starting from the empty warehouse, the intervention covers only the basics for living and working: washrooms, a kitchen, workshops, a co-living area and a shop to sell what is grown.\n\nThe building is organised into four atmospheres, from the most public to the most private. The original façade is set back and timber growing pods open straight onto the street; between them, the Barcelona paving runs inside and invites people in. Inside is the shop, open to everyone, looking onto the gardens and the street. Behind it, the residents' shared area: kitchen, washrooms, storage, rest and workshops. It is separated from the shop by vertical timber slats that pivot to open or close the view as needed.\n\nUpstairs, a second floor follows the grid set by the warehouse's beams. The columns make it easy to put up walls, and each new resident builds only the minimum needed to sleep: if five people live there, there are five rooms. As in Arcosanti, the space grows with the community. The final drawings are a hypothesis of how the warehouse might have evolved."
+    },
+    images: [
+      { src: "assets/projects/arrels-render-interior.jpg", layout: "full", caption: { ca: "Botiga: llistons giratoris i escala cap a les vivendes", en: "Shop: pivoting slats and stair up to the homes" } },
+      { src: "assets/projects/arrels-arcosanti-planta.jpg", layout: "span-5", caption: { ca: "Referència: Arcosanti, Paolo Soleri, 1970. Planta general", en: "Reference: Arcosanti, Paolo Soleri, 1970. Site plan" } },
+      { src: "assets/projects/arrels-arcosanti-fases.jpg", layout: "span-7", caption: { ca: "Referència: Arcosanti, creixement per fases", en: "Reference: Arcosanti, growth in phases" } },
+      { src: "assets/projects/arrels-existent-planta.jpg", layout: "span-6", caption: { ca: "La nau preexistent: planta, 1:150", en: "The existing warehouse: plan, 1:150" } },
+      { src: "assets/projects/arrels-existent-coberta.jpg", layout: "span-6", caption: { ca: "La nau preexistent: coberta, 1:150", en: "The existing warehouse: roof, 1:150" } },
+      { src: "assets/projects/arrels-existent-seccio-a.jpg", layout: "span-4", caption: { ca: "Preexistent: secció A, 1:100", en: "Existing: section A, 1:100" } },
+      { src: "assets/projects/arrels-existent-seccio-b.jpg", layout: "span-8", caption: { ca: "Preexistent: secció B, 1:150", en: "Existing: section B, 1:150" } },
+      { src: "assets/projects/arrels-existent-facana.jpg", layout: "plan", caption: { ca: "Façana original al carrer de Lull, 1:150", en: "Original façade on Carrer de Lull, 1:150" } },
+      { src: "assets/projects/arrels-axonometria.jpg", layout: "plan-tall", caption: { ca: "Les capes de la intervenció: botiga, tallers, conreu i vivendes", en: "The layers of the intervention: shop, workshops, growing and homes" } },
+      { src: "assets/projects/arrels-planta-baixa.jpg", layout: "plan", caption: { ca: "Planta baixa: càpsules de conreu, botiga i zona compartida, 1:150", en: "Ground floor: growing pods, shop and shared area, 1:150" } },
+      { src: "assets/projects/arrels-planta-primera.jpg", layout: "plan", caption: { ca: "Planta primera: vivendes sobre la quadrícula de bigues, 1:150", en: "First floor: homes on the beam grid, 1:150" } },
+      { src: "assets/projects/arrels-seccio-c.jpg", layout: "plan", caption: { ca: "Secció C: del carrer a les vivendes, 1:100", en: "Section C: from the street to the homes, 1:100" } },
+      { src: "assets/projects/arrels-seccio-d.jpg", layout: "plan", caption: { ca: "Secció D: façana retirada i càpsules, 1:150", en: "Section D: set-back façade and pods, 1:150" } },
+      { src: "assets/projects/arrels-seccio-e.jpg", layout: "plan", caption: { ca: "Secció E: botiga i pis de les vivendes, 1:150", en: "Section E: shop and residential floor, 1:150" } }
+    ],
+    cover: "assets/projects/arrels-render-carrer.jpg",
+    tile: "t-large"
   }
 ];
 
@@ -473,7 +552,9 @@ window.MENU_TILES = [
   { id: "espai-culte",     title: "Espai de Culte",     date: "2025",       category: "Render 3D",                    img: "assets/projects/espai-culte-01.jpg",    size: "t-thumb", filter: "renders" },
   { id: "les-fonts",       title: "Les Fonts",          date: "2025",       category: "Render 3D",                    img: "assets/projects/les-fonts-01.jpg",      size: "t-thumb", filter: "renders" },
   { id: "sant-pere-alt",   title: "Sant Pere Alt",      date: "2025",       category: "Render 3D",                    img: "assets/projects/sant-pere-alt-01.jpg",  size: "t-thumb", filter: "renders" },
-  { id: "vilamaniscle",    title: "Vilamaniscle",       date: "2025",       category: "Render 3D",                    img: "assets/projects/vilamaniscle-01.jpg",   size: "t-thumb", filter: "renders" }
+  { id: "vilamaniscle",    title: "Vilamaniscle",       date: "2025",       category: "Render 3D",                    img: "assets/projects/vilamaniscle-01.jpg",   size: "t-thumb", filter: "renders" },
+  { id: "art-habitar",     title: "L'Art d'Habitar",    date: "2025",       category: "Rehabilitació / Habitatge",    img: "assets/projects/art-habitar-axo.jpg",   size: "t-thumb", filter: "espais" },
+  { id: "arrels",          title: "Arrels",             date: "05-2026",    category: "Rehabilitació / Habitatge col·lectiu", img: "assets/projects/arrels-render-carrer.jpg", size: "t-thumb", filter: "espais" }
 ];
 
 window.FILTER_KEYS = ["all", "instalacio", "espais", "recerca"];
