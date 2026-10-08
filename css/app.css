@@ -924,18 +924,35 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
 .about-page h1 em { color: var(--t-accent); font-style: italic; }
 .about-page p { font-size: 14px; line-height: 1.6; max-width: 56ch; margin: 0 0 14px; }
 .about-side { display: flex; flex-direction: column; gap: 24px; }
-/* Foto de grup: retallada a les persones i la maqueta (la meitat de baix). */
-.about-photo {
-  margin: 0 0 40px;
-  width: min(100%, 420px);
+/* Fotos sota el text: grup i analògica vertical, l'una al costat de l'altra,
+   alineades per baix. */
+.about-photos {
+  margin-top: 56px;
+  display: flex;
+  align-items: flex-end;
+  gap: 24px;
 }
+.about-photo { margin: 0; }
 .about-photo img {
   width: 100%;
+  display: block;
+  background: var(--paper-pure);
+}
+.about-photo.is-grup { flex: 0 1 420px; min-width: 0; }
+.about-photo.is-gran { flex: 0 1 300px; min-width: 0; }
+/* Contacte amb l'analògica petita a la dreta. */
+.about-contact-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+}
+.about-contact-row .about-block { flex: 0 0 auto; }
+.about-photo.is-petita { flex: 0 1 256px; min-width: 0; }
+/* Foto de grup: retallada a les persones i la maqueta (la meitat de baix). */
+.about-photo.is-grup img {
   aspect-ratio: 4 / 3;
   object-fit: cover;
   object-position: center 78%;
-  display: block;
-  background: var(--paper-pure);
 }
 .about-photo figcaption {
   margin-top: 8px;
@@ -1433,17 +1450,16 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
 .home-stage-hero {
   z-index: 0;
 }
-/* El home de l'ordinador és una fotografia a sang: omple la pantalla
-   (object-fit: cover, com la resta d'imatges del lloc). */
+/* El home de l'ordinador és l'escaneig del negatiu, sense la vora de baix:
+   omple la pantalla ancorat a baix, perquè el Guggenheim toqui la vora
+   inferior. El que sobra es retalla per dalt (cel i text de la pel·lícula). */
 .home-hero-still {
-  background: #000;
+  background: #fff;
   cursor: pointer;
 }
 .home-hero-still .home-hero-img {
   object-fit: cover;
-  /* Ancorada a la cantonada inferior esquerra: és el punt que sempre
-     s'ha de veure. L'ampliació és la mínima que omple la pantalla. */
-  object-position: left bottom;
+  object-position: center bottom;
 }
 .home-hero-still:hover .home-hero-img.is-active { transform: none; }
 /* Tota la imatge obre el menú de projectes */
@@ -1456,32 +1472,32 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
   padding: 0;
   cursor: pointer;
 }
-/* About: sobre la samarreta, a la dreta de la cara. La foto (2400 × 1457)
-   omple la pantalla ancorada a baix a l'esquerra, així que el botó es
-   col·loca en píxels de la foto multiplicats per l'escala real (--s):
-   segueix la samarreta a qualsevol mida de pantalla. */
-.home-hero-still {
-  --s: max(100vw / 2400, 100vh / 1457);
-}
-.home-still-about {
+/* EXPLORE: al mateix lloc on el portava la composició anterior (a la dreta,
+   una mica per sobre de la meitat), un pèl més petit. Obre els projectes. */
+.home-still-explore {
   position: absolute;
   z-index: 7;
-  left: calc(var(--s) * 1065);
-  top: calc(100% - var(--s) * 88);
+  left: 73%;
+  top: 39%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
   background: none;
   border: 0;
   padding: 0;
   color: #000;
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-weight: 700;
-  font-size: calc(var(--s) * 27); /* l'EXPLORE de la foto fa ~56 */
+  font-size: clamp(18px, 1.9vw, 34px);
   letter-spacing: -0.01em;
   text-transform: uppercase;
   line-height: 1;
   cursor: pointer;
 }
-.home-still-about:hover { text-decoration: underline; text-underline-offset: 4px; }
-.home-still-about:focus-visible { outline: 1px solid #000; outline-offset: 6px; }
+.home-still-explore span { font-weight: 400; }
+.home-still-explore:hover { text-decoration: underline; text-underline-offset: 4px; }
+.home-still-explore:focus-visible { outline: 1px solid #000; outline-offset: 6px; }
 .home-stage-hero .home-hero { height: 100%; }
 /* La imatge del hero porta z-index:1 (heretat del carrusel). Aquí sobra i
    faria que tapés el strip, que ha de passar-hi per sobre. */
@@ -1924,7 +1940,8 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
     background: #ffffff;
   }
   /* Fotografia vertical a sang + tipografia remuntada a sobre */
-  .mobile-hero .mobile-hero-img { object-fit: cover; }
+  /* L'escaneig a sang, ancorat a baix: el Guggenheim toca la vora inferior */
+  .mobile-hero .mobile-hero-img { object-fit: cover; object-position: center bottom; }
   .mobile-hero-type {
     position: absolute;
     inset: 0;
@@ -1937,11 +1954,9 @@ body { margin: 0; min-height: 100vh; overflow-x: hidden; }
     color: #0d0d0c;
     pointer-events: none;
   }
-  /* La composició del mòbil ja porta el nom i el lema dins de la imatge,
-     com la de l'ordinador. El text es queda al document —perquè els
-     lectors de pantalla i els cercadors el segueixin trobant— però no es
-     dibuixa. Si algun dia la imatge torna a ser només fotografia, treure
-     aquest bloc ho recupera. */
+  /* El home només mostra EXPLORE: el nom i el lema es queden al document
+     —perquè els lectors de pantalla i els cercadors el segueixin trobant—
+     però no es dibuixen. Treure aquest bloc els torna a fer visibles. */
   .mobile-hero-type .mobile-hero-name,
   .mobile-hero-type .mobile-hero-claim {
     position: absolute;

@@ -314,6 +314,74 @@ window.PROJECTS = [
     tile: "t-medium"
   },
   {
+    id: "minolta-pocket",
+    num: "19",
+    title: "Minolta Pocket",
+    category: { ca: "Fotografia analògica / Fotollibre", en: "Film photography / Photobook" },
+    location: { ca: "Diversos llocs", en: "Various locations" },
+    institution: { ca: "Projecte personal", en: "Personal project" },
+    date: "2025",
+    role: { ca: "Fotografia i edició del llibre", en: "Photography and book editing" },
+    materials: { ca: "Càmera Minolta Pocket, pel·lícula Lomography Orca BW 100, llibre imprès", en: "Minolta Pocket camera, Lomography Orca BW 100 film, printed book" },
+    filter: "recerca",
+    blurb: {
+      ca: "Un carret de Lomography Orca BW 100 disparat amb una Minolta Pocket i convertit en fotollibre. Costa, viatges i el Guggenheim de Bilbao, en blanc i negre i amb la vora del negatiu, tal com surten del revelat.",
+      en: "A roll of Lomography Orca BW 100 shot on a Minolta Pocket and turned into a photobook. Coastline, travels and the Guggenheim in Bilbao, in black and white and with the negative border, just as they came out of the lab."
+    },
+    body: { ca: "", en: "" },
+    images: [
+      { src: "assets/projects/minolta-pocket-01.jpg", layout: "full", caption: { ca: "Barca fondejada, fotograma 11", en: "Moored boat, frame 11" } },
+      { src: "assets/projects/minolta-pocket-02.jpg", layout: "half-l", caption: { ca: "Para-sols a la platja, fotograma 05", en: "Beach umbrellas, frame 05" } },
+      { src: "assets/projects/minolta-pocket-03.jpg", layout: "half-r", caption: { ca: "Retrat a les roques, fotograma 01", en: "Portrait on the rocks, frame 01" } },
+      { src: "assets/projects/minolta-pocket-04.jpg", layout: "third-l", caption: { ca: "Badia, fotograma 16", en: "Bay, frame 16" } },
+      { src: "assets/projects/minolta-pocket-05.jpg", layout: "third-c", caption: { ca: "Carretera de costa, fotograma 14", en: "Coastal road, frame 14" } },
+      { src: "assets/projects/minolta-pocket-06.jpg", layout: "third-r", caption: { ca: "Barca i roca, fotograma 07", en: "Boat and rock, frame 07" } },
+      { src: "assets/projects/minolta-pocket-07.jpg", layout: "full", caption: { ca: "Coberta de vaixell, fotograma 09", en: "On deck, frame 09" } },
+      { src: "assets/projects/minolta-pocket-08.jpg", layout: "third-l", caption: { ca: "A la porta de casa, fotograma 19", en: "At the front door, frame 19" } },
+      { src: "assets/projects/minolta-pocket-09.jpg", layout: "third-c", caption: { ca: "Barca des de dalt, fotograma 10", en: "Boat from above, frame 10" } },
+      { src: "assets/projects/minolta-pocket-10.jpg", layout: "third-r", caption: { ca: "Tall Tree & the Eye, Guggenheim Bilbao, fotograma 24", en: "Tall Tree & the Eye, Guggenheim Bilbao, frame 24" } },
+      { src: "assets/projects/minolta-pocket-11.jpg", layout: "half-l", caption: { ca: "Retrat amb caputxa, fotograma 13", en: "Hooded portrait, frame 13" } },
+      { src: "assets/projects/minolta-pocket-12.jpg", layout: "half-r", caption: { ca: "Finestra, fotograma 15", en: "Window, frame 15" } },
+      { src: "assets/projects/minolta-pocket-13.jpg", layout: "third-l", caption: { ca: "Guggenheim Bilbao, fotograma 23", en: "Guggenheim Bilbao, frame 23" } },
+      { src: "assets/projects/minolta-pocket-14.jpg", layout: "third-c", caption: { ca: "Guggenheim Bilbao, fotograma 22", en: "Guggenheim Bilbao, frame 22" } },
+      { src: "assets/projects/minolta-pocket-15.jpg", layout: "third-r", caption: { ca: "Finestra d'autobús, fotograma 21", en: "Bus window, frame 21" } },
+      { src: "assets/projects/minolta-pocket-16.jpg", layout: "half-l", caption: { ca: "El llibre imprès", en: "The printed book" } },
+      { src: "assets/projects/minolta-pocket-17.jpg", layout: "half-r", caption: { ca: "El llibre imprès, detall", en: "The printed book, detail" } }
+    ],
+    cover: "assets/projects/minolta-pocket-cover.jpg",
+    tile: "t-medium"
+  },
+  {
+    id: "web-referencies",
+    num: "20",
+    title: "Referències",
+    category: { ca: "Web / Arxiu de referències", en: "Website / Reference archive" },
+    location: { ca: "Barcelona", en: "Barcelona" },
+    institution: { ca: "Projecte personal", en: "Personal project" },
+    date: "2026",
+    role: { ca: "Concepte, curadoria i desenvolupament amb IA", en: "Concept, curation and AI-assisted development" },
+    materials: { ca: "Web estàtica (Astro), cerca semàntica al navegador · 126 fitxes, 575 imatges, 296 etiquetes", en: "Static website (Astro), in-browser semantic search · 126 entries, 575 images, 296 tags" },
+    filter: "recerca",
+    blurb: {
+      ca: "Un arxiu web de les referències que he anat recollint durant la carrera: projectes, estudis, dissenyadors, mobiliari, llibres, materials i webs. Més de cent fitxes etiquetades per concepte, material i atmosfera, per trobar inspiració ràpid.",
+      en: "A web archive of the references I have been collecting throughout my degree: projects, studios, designers, furniture, books, materials and websites. Over a hundred entries tagged by concept, material and atmosphere, to find inspiration fast."
+    },
+    body: {
+      ca: "Durant la carrera he anat apuntant projectes, dissenyadors i referències de tota mena, però estaven dispersos. Amb ajuda de la IA i el vibe coding les he reunit, organitzat i omplert d'informació en una sola web. En obrir-la, totes les imatges apareixen barrejades com un moodboard; en fer scroll, s'ordenen en una quadrícula. El buscador relaciona paraules amb etiquetes semblants encara que no siguin iguals: «calidesa» porta a fusta, terra o llum càlida.\n\nAra el projecte vol créixer: busco que els companys m'enviïn les seves referències, per omplir-lo encara més i compartir l'enllaç perquè tothom en pugui treure profit.",
+      en: "Throughout my degree I kept noting down projects, designers and references of all kinds, but they were scattered. With the help of AI and vibe coding I gathered, organised and filled them with information in a single website. On opening it, all the images appear mixed together like a moodboard; as you scroll, they arrange themselves into a grid. The search links words to similar tags even when they don't match exactly: \"warmth\" leads to wood, earth or warm light.\n\nNow the project wants to grow: I'm asking classmates to send me their references, to fill it even further and share the link so everyone can make use of it."
+    },
+    images: [
+      { src: "assets/projects/referencies-01.jpg", layout: "full", caption: { ca: "En obrir: totes les imatges barrejades, com un moodboard", en: "On opening: all the images mixed together, like a moodboard" } },
+      { src: "assets/projects/referencies-02.jpg", layout: "full", caption: { ca: "En fer scroll: la quadrícula numerada", en: "On scroll: the numbered grid" } },
+      { src: "assets/projects/referencies-03.jpg", layout: "half-l", caption: { ca: "Cerca «fusta»: conceptes relacionats i 45 resultats", en: "Searching \"fusta\" (wood): related concepts and 45 results" } },
+      { src: "assets/projects/referencies-04.jpg", layout: "half-r", caption: { ca: "Les imatges s'ordenen seguint l'scroll", en: "The images rearrange as you scroll" } },
+      { src: "assets/projects/referencies-05.jpg", layout: "full", caption: { ca: "Fitxa: imatges amb crèdits, etiquetes i què m'interessa", en: "Entry page: credited images, tags and what interests me" } },
+      { src: "assets/projects/referencies-06.jpg", layout: "third-c", caption: { ca: "Versió mòbil", en: "Mobile version" } }
+    ],
+    cover: "assets/projects/referencies-cover.jpg",
+    tile: "t-medium"
+  },
+  {
     id: "pavello-mies",
     num: "11",
     title: "Pavelló Mies",
@@ -547,6 +615,8 @@ window.MENU_TILES = [
   { id: "entre-pinos",     title: "Entre Pinos",        date: "2025",       category: "Anàlisi / Paisatgisme",        img: "assets/projects/entre-pinos-03.jpg",    size: "t-thumb", filter: "espais" },
   { id: "casa-keremma",    title: "Casa R en Keremma",  date: "2025",       category: "Anàlisi / Representació",      img: "assets/projects/casa-keremma-01.jpg",   size: "t-thumb", filter: "instalacio" },
   { id: "edificis-poble9", title: "Edificis Poble9",    date: "2025",       category: "Fotografia",                   img: "assets/projects/poble9-04.jpg",         size: "t-thumb", filter: "recerca" },
+  { id: "minolta-pocket",  title: "Minolta Pocket",     date: "2025",       category: "Fotografia analògica",         img: "assets/projects/minolta-pocket-cover.jpg", size: "t-thumb", filter: "recerca" },
+  { id: "web-referencies", title: "Referències",        date: "2026",       category: "Web / Arxiu de referències",   img: "assets/projects/referencies-cover.jpg",    size: "t-thumb", filter: "recerca" },
   { id: "pavello-mies",    title: "Pavelló Mies", date: "2025", category: "Render 3D",              img: "assets/projects/pavello-mies-01.jpg",   size: "t-thumb", filter: "renders" },
   { id: "edifici-tic",     title: "Edifici TIC",        date: "2025",       category: "Render 3D",                    img: "assets/projects/edifici-tic-01.jpg",    size: "t-thumb", filter: "renders" },
   { id: "espai-culte",     title: "Espai de Culte",     date: "2025",       category: "Render 3D",                    img: "assets/projects/espai-culte-01.jpg",    size: "t-thumb", filter: "renders" },

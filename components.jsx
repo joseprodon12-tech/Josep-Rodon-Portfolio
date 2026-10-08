@@ -12,11 +12,12 @@ const HOME_ENTER_VH = 1.6;
 const HOME_ENTER_EASE = 0.09;
 
 /* Imatge fixa del home (fons sobre el qual entren els projectes).
-   Ordinador: la composició apaïsada, a sang.
-   Mòbil: la mateixa fotografia retallada en vertical; el text el remunta
-   el CSS a sobre (.mobile-hero-type), així encaixa a qualsevol pantalla. */
-const HOME_STILL_SRC = "assets/home-desktop.jpg";
-const HOME_STILL_MOBILE_SRC = "assets/home-mobile.jpg";
+   Escaneig de la Minolta Pocket (000024) sense la vora de baix, a sang i
+   ancorat a baix, a l'ordinador i al mòbil. L'únic text a sobre és EXPLORE.
+   Les composicions anteriors amb el nom (home-desktop.jpg, home-mobile.jpg)
+   són a "web altres versions/home Josep Rodon (arxiu)". */
+const HOME_STILL_SRC = "assets/home-minolta.jpg";
+const HOME_STILL_MOBILE_SRC = "assets/home-minolta.jpg";
 
 /* Durada de l'obertura del menú quan es clica la fletxa "Click Here!" */
 const HOME_REVEAL_MS = 1000;
@@ -185,9 +186,9 @@ function HeroStill({ onReveal, onNav, lang }) {
         onClick={onReveal}
         aria-label={lang === "en" ? "See projects" : "Veure projectes"} />
       }
-      {onNav &&
-      <button className="home-still-about" onClick={() => onNav("about")}>
-        About
+      {onReveal &&
+      <button className="home-still-explore" onClick={onReveal}>
+        Explore <span aria-hidden="true">⟶</span>
       </button>
       }
     </section>);
@@ -503,23 +504,33 @@ function ProjectDetail({ project, onOpen, onBack, lang }) {
 }
 
 /* ============== About ============== */
-/* Foto amb l'equip de L'Art d'Habitar (la mateixa del projecte).
-   Si el fitxer fallés, el bloc no surt. */
-const ABOUT_PHOTO_SRC = "assets/projects/art-habitar-equip.jpg";
+/* Fotos del Sobre Mi. `mida` en marca l'amplada i el lloc: grup i gran van
+   l'una al costat de l'altra sota el text; la petita, a la dreta del contacte.
+   Si un fitxer fallés, aquella foto no surt. */
+const ABOUT_PHOTOS = [
+  { src: "assets/projects/art-habitar-equip.jpg", mida: "is-grup",
+    alt: { ca: "Josep Rodon amb l'equip de L'Art d'Habitar", en: "Josep Rodon with the L'Art d'Habitar team" },
+    caption: { ca: "Amb l'equip de L'Art d'Habitar, BAU", en: "With the L'Art d'Habitar team, BAU" } },
+  { src: "assets/projects/about-minolta-06.jpg", mida: "is-gran",
+    alt: { ca: "Fotografia analògica en blanc i negre", en: "Black and white film photograph" },
+    caption: { ca: "Minolta Pocket 70mm · Lomography Orca BW 100", en: "Minolta Pocket 70mm · Lomography Orca BW 100" } },
+  { src: "assets/projects/about-minolta-12.jpg", mida: "is-petita",
+    alt: { ca: "Retrat analògic en blanc i negre de Josep Rodon", en: "Black and white film portrait of Josep Rodon" },
+    caption: { ca: "Minolta Pocket 70mm", en: "Minolta Pocket 70mm" } }
+];
 
 function About({ lang }) {
   const s = window.STRINGS[lang];
-  const [ambFoto, setAmbFoto] = useState(true);
+  const [fallides, setFallides] = useState([]);
+  const foto = (f) => fallides.includes(f.src) ? null :
+  <figure key={f.src} className={`about-photo ${f.mida}`}>
+    <img src={f.src} alt={f.alt[lang]} loading="lazy" onError={() => setFallides((v) => [...v, f.src])} />
+    <figcaption>{f.caption[lang]}</figcaption>
+  </figure>;
   return (
     <section className="about-page" data-over="light">
       <div className="col-num">0.0</div>
       <div>
-        {ambFoto &&
-        <figure className="about-photo">
-          <img src={ABOUT_PHOTO_SRC} alt={lang === "ca" ? "Josep Rodon amb l'equip de L'Art d'Habitar" : "Josep Rodon with the L'Art d'Habitar team"} onError={() => setAmbFoto(false)} />
-          <figcaption>{lang === "ca" ? "Amb l'equip de L'Art d'Habitar, BAU" : "With the L'Art d'Habitar team, BAU"}</figcaption>
-        </figure>
-        }
         <h1>
           {lang === "ca" ?
           <>Josep Rodon — <em>disseny espacial</em>, interiors i direcció artística.</> :
@@ -530,14 +541,20 @@ function About({ lang }) {
           ? <>AYMA Studio és el meu espai de recerca i projectes: un reflex del camí que estic construint com a dissenyador. Disponible per <strong>col·laboracions i encàrrecs</strong>.</>
           : <>AYMA Studio is my space for research and projects: a reflection of the path I am building as a designer. Available for <strong>collaborations and commissions</strong>.</>
         }</p>
+        <div className="about-photos">
+          {ABOUT_PHOTOS.filter((f) => f.mida !== "is-petita").map(foto)}
+        </div>
       </div>
       <div className="about-side">
-        <div className="about-block">
-          <span className="eyebrow">{s.contact}</span>
-          <ul>
-            <li><a href="mailto:joseprodon12@gmail.com">joseprodon12@gmail.com</a></li>
-            <li className="tabular">+34 620 925 416</li>
-          </ul>
+        <div className="about-contact-row">
+          <div className="about-block">
+            <span className="eyebrow">{s.contact}</span>
+            <ul>
+              <li><a href="mailto:joseprodon12@gmail.com">joseprodon12@gmail.com</a></li>
+              <li className="tabular">+34 620 925 416</li>
+            </ul>
+          </div>
+          {ABOUT_PHOTOS.filter((f) => f.mida === "is-petita").map(foto)}
         </div>
         <div className="about-block">
           <span className="eyebrow">{s.elsewhere}</span>
